@@ -1,8 +1,8 @@
-# FlowAI
+# HarshAI
 
 **The all-in-one AI automation platform for creators.**
 
-*Where AI Tools Connect*
+*Built by Harshal Lahare*
 
 ## Status: 🚀 BUILD IN PROGRESS
 
