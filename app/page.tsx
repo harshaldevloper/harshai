@@ -18,12 +18,18 @@ export default function Home() {
           
           {/* CTA Buttons */}
           <div className="flex gap-4 justify-center flex-wrap">
-            <button className="bg-white text-indigo-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-indigo-100 transition-all transform hover:scale-105">
-              Join Waitlist
-            </button>
-            <button className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-indigo-900 transition-all">
-              Learn More
-            </button>
+            <a
+              href="/builder"
+              className="bg-white text-indigo-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-indigo-100 transition-all transform hover:scale-105"
+            >
+              Try Builder →
+            </a>
+            <a
+              href="/sign-up"
+              className="border-2 border-white text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:text-indigo-900 transition-all"
+            >
+              Get Started
+            </a>
           </div>
         </div>
 
