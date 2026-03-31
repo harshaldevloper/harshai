@@ -2,6 +2,8 @@
   "name": "harshai",
   "version": "0.1.0",
   "private": true,
+  "description": "HarshAI - Your AI Command Center. The all-in-one AI automation platform for creators.",
+  "homepage": "https://getharshai.vercel.app",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

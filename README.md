@@ -4,6 +4,8 @@
 
 *Built by Harshal Lahare*
 
+🌐 **Live:** https://getharshai.vercel.app
+
 ## Status: 🚀 BUILD IN PROGRESS
 
 ## Tech Stack
