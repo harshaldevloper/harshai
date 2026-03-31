@@ -1,0 +1,71 @@
+// AI Workflow Automator - Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  clerkId        String    @unique
+  email          String    @unique
+  name           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  workflows      Workflow[]
+  executions     Execution[]
+  subscription   Subscription?
+}
+
+model Workflow {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  description String?
+  nodes       Json     // React Flow nodes
+  edges       Json     // React Flow edges
+  isActive    Boolean  @default(true)
+  runs        Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  executions  Execution[]
+}
+
+model Execution {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id])
+  status     String   // pending, running, completed, failed
+  result     Json?
+  error      String?
+  startedAt  DateTime @default(now())
+  completedAt DateTime?
+}
+
+model Subscription {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  paddleId     String   @unique
+  plan         String   // free, pro, business, enterprise
+  status       String   // active, paused, deleted
+  runsLimit    Int      @default(100)
+  runsUsed     Int      @default(0)
+  resetDate    DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Integration {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  logo      String?
+  apiEndpoint String
+  authType  String   // api_key, oauth2, none
+  isActive  Boolean  @default(true)
+}
