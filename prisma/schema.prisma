@@ -1,4 +1,4 @@
-// AI Workflow Automator - Database Schema
+// FlowAI - Database Schema
 
 generator client {
   provider = "prisma-client-js"

@@ -1,6 +1,8 @@
-# AI Workflow Automator
+# FlowAI
 
 **The all-in-one AI automation platform for creators.**
+
+*Where AI Tools Connect*
 
 ## Status: 🚀 BUILD IN PROGRESS
 
