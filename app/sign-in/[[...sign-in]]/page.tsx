@@ -1,10 +1,17 @@
 'use client';
 
 import { SignIn } from '@clerk/nextjs';
+import { useEffect, useState } from 'react';
 
 export default function SignInPage() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
-    <div className="relative min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4 py-12 overflow-hidden">
+    <div className="relative min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4 py-12 overflow-hidden" style={{ opacity: mounted ? 1 : 0, transition: 'opacity 0.3s ease-in' }}>
       {/* Animated Background Orbs - Same as Homepage */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
@@ -53,19 +60,22 @@ export default function SignInPage() {
               elements: {
                 // Main button
                 formButtonPrimary: 'bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 hover:scale-105',
-                // Card container
-                card: 'bg-transparent shadow-none p-0',
+                // Card container - HIDE the default card wrapper
+                card: 'bg-transparent shadow-none p-0 box-border',
                 // Header
                 headerTitle: 'text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent',
                 headerSubtitle: 'text-gray-400 text-base',
                 header: 'mb-6',
+                headerIcon: 'hidden',
                 // Social buttons
                 socialButtonsBlockButton: 'bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl py-3.5 transition-all duration-200 hover:scale-105 hover:border-purple-500/50',
                 socialButtonsBlockButtonText: 'text-white font-semibold',
                 socialButtons: 'gap-3',
+                socialButtonsBlockButtonArrow: 'text-white',
                 // Footer
                 footerActionLink: 'text-purple-400 hover:text-purple-300 font-semibold transition-colors',
                 footer: 'mt-6 pt-6 border-t border-white/10',
+                footerContent: 'text-gray-400',
                 // Form fields
                 formFieldLabel: 'text-gray-300 font-semibold text-sm mb-2',
                 formFieldInput: 'bg-white/5 border border-white/20 text-white rounded-xl px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all',
@@ -79,6 +89,9 @@ export default function SignInPage() {
                 identityPreviewEditButton: 'text-purple-400 hover:text-purple-300',
                 // Code inputs (OTP)
                 formCodeField: 'bg-white/10 border border-white/20 rounded-xl text-white',
+                // Hide default elements that conflict
+                rootBox: 'w-full',
+                container: 'bg-transparent shadow-none',
               },
             }}
           />
