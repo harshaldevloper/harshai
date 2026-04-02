@@ -1,5 +1,6 @@
 import { ClerkProvider } from '@clerk/nextjs'
 import type { Metadata } from "next"
+import './globals.css'
 
 export const metadata: Metadata = {
   title: "HarshAI - Your AI Command Center",
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HarshAI - Your AI Command Center",
     description: "The all-in-one AI automation platform for creators",
-    url: "https://getharshai.vercel.app",
+    url: "https://ai-workflow-automator.vercel.app",
     siteName: "HarshAI",
     locale: "en_US",
     type: "website",

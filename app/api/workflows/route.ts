@@ -1,36 +1,21 @@
-import { NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 /**
- * GET /api/workflows
- * Get all workflows for current user
+ * GET /api/workflows - List all workflows for current user
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const user = await currentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Find user in our database
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
-      include: {
-        workflows: {
-          orderBy: { updatedAt: 'desc' },
-        },
-      },
+    // TODO: Add authentication (Clerk user ID)
+    const workflows = await prisma.workflow.findMany({
+      orderBy: { updatedAt: 'desc' },
     });
 
-    if (!dbUser) {
-      return NextResponse.json({ workflows: [] }, { status: 200 });
-    }
-
-    return NextResponse.json({ workflows: dbUser.workflows });
+    return NextResponse.json(workflows);
   } catch (error) {
-    console.error('Error fetching workflows:', error);
+    console.error('[API] Failed to fetch workflows:', error);
     return NextResponse.json(
       { error: 'Failed to fetch workflows' },
       { status: 500 }
@@ -39,53 +24,49 @@ export async function GET() {
 }
 
 /**
- * POST /api/workflows
- * Create a new workflow
+ * POST /api/workflows - Create or update a workflow
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const user = await currentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { name, description, nodes, edges } = body;
+    const { id, name, description, nodes, edges, version } = body;
 
-    // Find or create user in our database
-    let dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
-    });
-
-    if (!dbUser) {
-      dbUser = await prisma.user.create({
+    // TODO: Add authentication (Clerk user ID)
+    
+    if (id) {
+      // Update existing workflow
+      const workflow = await prisma.workflow.update({
+        where: { id },
         data: {
-          clerkId: user.id,
-          email: user.emailAddresses[0]?.emailAddress || '',
-          name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.emailAddresses[0]?.emailAddress,
+          name,
+          description,
+          nodes: JSON.stringify(nodes),
+          edges: JSON.stringify(edges),
+          version: version + 1,
         },
       });
+
+      console.log('[API] Updated workflow:', id);
+      return NextResponse.json(workflow);
+    } else {
+      // Create new workflow
+      const workflow = await prisma.workflow.create({
+        data: {
+          name,
+          description: description || '',
+          nodes: JSON.stringify(nodes || []),
+          edges: JSON.stringify(edges || []),
+          version: 1,
+        },
+      });
+
+      console.log('[API] Created workflow:', workflow.id);
+      return NextResponse.json(workflow, { status: 201 });
     }
-
-    // Create workflow
-    const workflow = await prisma.workflow.create({
-      data: {
-        userId: dbUser.id,
-        name,
-        description: description || null,
-        nodes: nodes || [],
-        edges: edges || [],
-        isActive: true,
-        runs: 0,
-      },
-    });
-
-    return NextResponse.json({ workflow }, { status: 201 });
   } catch (error) {
-    console.error('Error creating workflow:', error);
+    console.error('[API] Failed to save workflow:', error);
     return NextResponse.json(
-      { error: 'Failed to create workflow' },
+      { error: 'Failed to save workflow' },
       { status: 500 }
     );
   }

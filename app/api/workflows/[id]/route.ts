@@ -1,48 +1,37 @@
-import { NextResponse } from 'next/server';
-import { currentUser } from '@clerk/nextjs';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 /**
- * GET /api/workflows/[id]
- * Get a single workflow by ID
+ * GET /api/workflows/:id - Get single workflow by ID
  */
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await currentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const workflow = await prisma.workflow.findUnique({
       where: { id: params.id },
-      include: {
-        executions: {
-          orderBy: { startedAt: 'desc' },
-          take: 10,
-        },
-      },
     });
 
     if (!workflow) {
-      return NextResponse.json({ error: 'Workflow not found' }, { status: 404 });
+      return NextResponse.json(
+        { error: 'Workflow not found' },
+        { status: 404 }
+      );
     }
 
-    // Verify ownership
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
-    });
+    // Parse JSON strings back to objects
+    const parsedWorkflow = {
+      ...workflow,
+      nodes: JSON.parse(workflow.nodes as string),
+      edges: JSON.parse(workflow.edges as string),
+    };
 
-    if (!dbUser || workflow.userId !== dbUser.id) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
-    return NextResponse.json({ workflow });
+    return NextResponse.json(parsedWorkflow);
   } catch (error) {
-    console.error('Error fetching workflow:', error);
+    console.error('[API] Failed to fetch workflow:', error);
     return NextResponse.json(
       { error: 'Failed to fetch workflow' },
       { status: 500 }
@@ -51,86 +40,21 @@ export async function GET(
 }
 
 /**
- * PUT /api/workflows/[id]
- * Update a workflow
- */
-export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
-  try {
-    const user = await currentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { name, description, nodes, edges, isActive } = body;
-
-    // Verify ownership
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
-    });
-
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Update workflow
-    const workflow = await prisma.workflow.update({
-      where: { id: params.id },
-      data: {
-        name,
-        description,
-        nodes,
-        edges,
-        isActive,
-      },
-    });
-
-    return NextResponse.json({ workflow });
-  } catch (error) {
-    console.error('Error updating workflow:', error);
-    return NextResponse.json(
-      { error: 'Failed to update workflow' },
-      { status: 500 }
-    );
-  }
-}
-
-/**
- * DELETE /api/workflows/[id]
- * Delete a workflow
+ * DELETE /api/workflows/:id - Delete workflow
  */
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await currentUser();
-    
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Verify ownership
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkId: user.id },
-    });
-
-    if (!dbUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Delete workflow
     await prisma.workflow.delete({
       where: { id: params.id },
     });
 
+    console.log('[API] Deleted workflow:', params.id);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error deleting workflow:', error);
+    console.error('[API] Failed to delete workflow:', error);
     return NextResponse.json(
       { error: 'Failed to delete workflow' },
       { status: 500 }

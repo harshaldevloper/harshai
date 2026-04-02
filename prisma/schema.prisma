@@ -29,6 +29,7 @@ model Workflow {
   description String?
   nodes       Json     // React Flow nodes
   edges       Json     // React Flow edges
+  version     Int      @default(1)
   isActive    Boolean  @default(true)
   runs        Int      @default(0)
   createdAt   DateTime @default(now())
@@ -40,6 +41,8 @@ model Execution {
   id         String   @id @default(cuid())
   workflowId String
   workflow   Workflow @relation(fields: [workflowId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
   status     String   // pending, running, completed, failed
   result     Json?
   error      String?
