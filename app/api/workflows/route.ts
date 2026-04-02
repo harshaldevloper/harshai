@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
 
     // TODO: Add authentication (Clerk user ID)
     
+    // Placeholder userId for development (replace with Clerk auth later)
+    const userId = 'dev-user-001';
+    
     if (id) {
       // Update existing workflow
       const workflow = await prisma.workflow.update({
@@ -52,6 +55,7 @@ export async function POST(request: NextRequest) {
       // Create new workflow
       const workflow = await prisma.workflow.create({
         data: {
+          userId,
           name,
           description: description || '',
           nodes: JSON.stringify(nodes || []),
