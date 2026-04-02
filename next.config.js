@@ -7,10 +7,6 @@ const nextConfig = {
     REDIS_URL: process.env.REDIS_URL,
     PADDLE_API_KEY: process.env.PADDLE_API_KEY,
   },
-  webpack: (config) => {
-    config.externals = [...config.externals, { 'reactflow': 'reactflow' }];
-    return config;
-  },
 }
 
 module.exports = nextConfig

@@ -1,6 +1,5 @@
 'use client';
 
-import { HeroScene } from '../3d/HeroScene';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -22,7 +21,6 @@ export default function ContactPage() {
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0a0a1a] via-[#1a1a3e] to-[#0f0f23] overflow-hidden">
-      <HeroScene />
       
       <nav className="relative z-50 px-8 py-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
