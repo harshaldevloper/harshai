@@ -32,6 +32,14 @@ export default function Header() {
         >
           Templates
         </Link>
+        <button 
+          onClick={async () => {
+            alert('🚀 Workflow execution engine ready! Check /api/execute endpoint.');
+          }}
+          className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-all transform hover:scale-105"
+        >
+          ▶️ Run
+        </button>
         <button className="px-4 py-2 text-indigo-200 hover:text-white transition-colors">
           Test
         </button>
