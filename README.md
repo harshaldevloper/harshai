@@ -4,7 +4,7 @@
 
 *Built by Harshal Lahare*
 
-🌐 **Live:** https://getharshai.vercel.app
+🌐 **Live:** https://ai-workflow-automator.vercel.app/
 
 ## Status: 🚀 BUILD IN PROGRESS
 
