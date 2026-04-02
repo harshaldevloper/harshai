@@ -14,6 +14,7 @@ import ReactFlow, {
   ReactFlowProvider,
   ReactFlowInstance,
   useReactFlow,
+  ReactFlowJsonObject,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -23,6 +24,7 @@ import ConfigPanel from '@/components/builder/ConfigPanel';
 import SaveButton from '@/components/builder/SaveButton';
 import { TriggerNode, ActionNode, ConditionNode } from '@/components/builder/nodes';
 import { saveWorkflowLocal, createWorkflow } from '@/lib/workflow-storage';
+import { isValidConnection, wouldOrphanNodes } from '@/lib/validate-connection';
 
 // Register custom node types
 const nodeTypes: NodeTypes = {
@@ -50,21 +52,35 @@ function Flow() {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
-    [setEdges]
+    (params: Connection) => {
+      if (isValidConnection(params, nodes, edges)) {
+        setEdges((eds) => addEdge({ ...params, animated: true, type: 'smoothstep' }, eds));
+      } else {
+        alert('Invalid connection! Connections must follow: Trigger → Action/Condition → Action');
+      }
+    },
+    [nodes, edges, setEdges]
   );
 
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
+    setSelectedEdge(null);
+  }, []);
+
+  const onEdgeClick = useCallback((_: React.MouseEvent, edge: Edge) => {
+    setSelectedEdge(edge);
+    setSelectedNode(null);
   }, []);
 
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
+    setSelectedEdge(null);
   }, []);
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -108,6 +124,54 @@ function Flow() {
     [reactFlowInstance, setNodes]
   );
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Delete node with Backspace or Delete key
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        // Don't delete if user is typing in an input
+        if ((event.target as HTMLElement).tagName === 'INPUT' || 
+            (event.target as HTMLElement).tagName === 'TEXTAREA') {
+          return;
+        }
+
+        if (selectedNode) {
+          // Check if deleting would orphan nodes
+          if (wouldOrphanNodes(selectedNode.id, nodes, edges)) {
+            const confirmDelete = confirm(
+              'Deleting this node will also remove connected nodes. Continue?'
+            );
+            if (!confirmDelete) return;
+          }
+
+          setNodes((nds) => nds.filter((node) => node.id !== selectedNode.id));
+          setEdges((eds) => eds.filter((edge) => 
+            edge.source !== selectedNode.id && edge.target !== selectedNode.id
+          ));
+          setSelectedNode(null);
+        } else if (selectedEdge) {
+          setEdges((eds) => eds.filter((edge) => edge.id !== selectedEdge.id));
+          setSelectedEdge(null);
+        }
+      }
+
+      // Undo (Ctrl+Z)
+      if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+        console.log('[Builder] Undo triggered (not yet implemented)');
+        // TODO: Implement undo/redo with history stack
+      }
+
+      // Save (Ctrl+S)
+      if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+        event.preventDefault();
+        handleSave();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedNode, selectedEdge, nodes, edges, handleSave]);
+
   // Auto-save every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -132,6 +196,17 @@ function Flow() {
     }
   }, [nodes, edges]);
 
+  const onNodesDelete = useCallback(
+    (deleted: Node[]) => {
+      // Also remove edges connected to deleted nodes
+      const deletedIds = deleted.map((n) => n.id);
+      setEdges((eds) =>
+        eds.filter((edge) => !deletedIds.includes(edge.source) && !deletedIds.includes(edge.target))
+      );
+    },
+    [setEdges]
+  );
+
   return (
     <div className="h-screen flex flex-col" ref={reactFlowWrapper}>
       <Header />
@@ -149,15 +224,18 @@ function Flow() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            onEdgeClick={onEdgeClick}
             onPaneClick={onPaneClick}
             onDragOver={onDragOver}
             onDrop={onDrop}
+            onNodesDelete={onNodesDelete}
             onInit={setReactFlowInstance}
             fitView
             snapToGrid
             snapGrid={[15, 15]}
             nodeTypes={nodeTypes}
             className="bg-gray-900"
+            deleteKeyCode={[]} // We handle deletion manually
           >
             <Controls className="!bg-gray-800 !border-gray-700" />
             <Background color="#374151" gap={20} />
@@ -170,6 +248,16 @@ function Flow() {
               isSaving={isSaving}
               lastSaved={lastSaved}
             />
+          </div>
+
+          {/* Keyboard Shortcuts Help (Bottom Left) */}
+          <div className="absolute bottom-4 left-4 z-10 bg-gray-800/90 border border-gray-700 rounded-lg p-3 text-xs text-gray-300">
+            <div className="font-semibold text-white mb-2">⌨️ Keyboard Shortcuts</div>
+            <div className="space-y-1">
+              <div><kbd className="bg-gray-700 px-1 rounded">Delete</kbd> Remove selected node/edge</div>
+              <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+S</kbd> Save workflow</div>
+              <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+Z</kbd> Undo (coming soon)</div>
+            </div>
           </div>
         </div>
 
@@ -184,6 +272,28 @@ function Flow() {
               );
             }}
           />
+        )}
+
+        {/* Edge Config Panel */}
+        {selectedEdge && (
+          <div className="absolute top-4 right-4 z-20 bg-gray-800 border border-gray-700 rounded-lg p-4 w-64 shadow-xl">
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="text-white font-semibold">Connection</h3>
+              <button
+                onClick={() => {
+                  setEdges((eds) => eds.filter((e) => e.id !== selectedEdge.id));
+                  setSelectedEdge(null);
+                }}
+                className="text-red-400 hover:text-red-300 text-sm"
+              >
+                Delete
+              </button>
+            </div>
+            <div className="text-gray-400 text-sm">
+              <div>From: <span className="text-white">{selectedEdge.source}</span></div>
+              <div>To: <span className="text-white">{selectedEdge.target}</span></div>
+            </div>
+          </div>
         )}
       </div>
     </div>
