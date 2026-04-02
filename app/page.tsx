@@ -58,30 +58,30 @@ export default function Home() {
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/80 border-b border-white/10" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center" style={{ flexWrap: 'nowrap' }}>
           {/* Logo */}
           <Link 
             href="/" 
-            className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-            style={{ marginRight: '1rem' }}
+            className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity flex-shrink-0"
+            style={{ marginRight: '0.75rem' }}
           >
             HarshAI
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((item) => (
+          {/* Desktop Navigation - HIDDEN on mobile */}
+          <div className="hidden md:flex md:items-center md:gap-6 lg:gap-8 flex-shrink-0">
+            {navLinks.slice(0, 5).map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
-                className="text-gray-300 hover:text-white font-medium transition-colors duration-200"
+                className="text-gray-300 hover:text-white font-medium transition-colors duration-200 text-sm lg:text-base whitespace-nowrap"
               >
                 {item}
               </Link>
             ))}
             <Link
               href="/sign-up"
-              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-2.5 rounded-full font-semibold text-white hover:scale-105 transition-transform duration-200"
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-5 lg:px-6 py-2 lg:py-2.5 rounded-full font-semibold text-white text-sm lg:text-base hover:scale-105 transition-transform duration-200 flex-shrink-0"
             >
               Get Started
             </Link>
@@ -90,7 +90,8 @@ export default function Home() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-white text-2xl p-2"
+            className="md:hidden text-white text-2xl p-2 flex-shrink-0"
+            aria-label="Toggle menu"
           >
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
@@ -98,13 +99,13 @@ export default function Home() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-black/98 border-t border-white/10 px-6 py-4 flex flex-col gap-4">
+          <div className="md:hidden bg-black/98 border-t border-white/10 px-6 py-4 flex flex-col gap-3">
             {navLinks.map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-300 hover:text-white font-medium py-2"
+                className="text-gray-300 hover:text-white font-medium py-3 border-b border-white/5"
               >
                 {item}
               </Link>
@@ -112,7 +113,7 @@ export default function Home() {
             <Link
               href="/sign-up"
               onClick={() => setMobileMenuOpen(false)}
-              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 rounded-full font-semibold text-white text-center"
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3.5 rounded-full font-semibold text-white text-center mt-2"
             >
               Get Started
             </Link>
