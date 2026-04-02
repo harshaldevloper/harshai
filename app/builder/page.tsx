@@ -268,12 +268,6 @@ function Flow() {
           <ConfigPanel 
             node={selectedNode} 
             onClose={() => setSelectedNode(null)}
-            onUpdate={(updatedNode) => {
-              setNodes((nds) =>
-                nds.map((n) => (n.id === updatedNode.id ? updatedNode : n))
-              );
-            }}
-          />
         )}
 
         {/* Edge Config Panel */}
