@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import ReactFlow, {
   Node,
   Edge,
@@ -11,6 +11,9 @@ import ReactFlow, {
   addEdge,
   Connection,
   NodeTypes,
+  ReactFlowProvider,
+  ReactFlowInstance,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 
@@ -39,12 +42,17 @@ const initialNodes: Node[] = [
 
 const initialEdges: Edge[] = [];
 
-export default function BuilderPage() {
+let id = 0;
+const getId = () => `node_${id++}`;
+
+function Flow() {
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
@@ -58,6 +66,47 @@ export default function BuilderPage() {
   const onPaneClick = useCallback(() => {
     setSelectedNode(null);
   }, []);
+
+  const onDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+  }, []);
+
+  const onDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
+
+      const type = event.dataTransfer.getData('application/reactflow');
+      const variant = event.dataTransfer.getData('variant');
+      const label = event.dataTransfer.getData('label');
+
+      if (typeof type === 'undefined' || !type) {
+        return;
+      }
+
+      const position = reactFlowInstance?.screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+
+      if (!position) {
+        return;
+      }
+
+      const newNode: Node = {
+        id: getId(),
+        type,
+        position,
+        data: {
+          label,
+          [type === 'trigger' ? 'triggerType' : type === 'action' ? 'actionType' : 'conditionType']: variant,
+        },
+      };
+
+      setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance, setNodes]
+  );
 
   // Auto-save every 30 seconds
   useEffect(() => {
@@ -84,7 +133,7 @@ export default function BuilderPage() {
   }, [nodes, edges]);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col" ref={reactFlowWrapper}>
       <Header />
       
       <div className="flex-1 flex overflow-hidden">
@@ -101,6 +150,9 @@ export default function BuilderPage() {
             onConnect={onConnect}
             onNodeClick={onNodeClick}
             onPaneClick={onPaneClick}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            onInit={setReactFlowInstance}
             fitView
             snapToGrid
             snapGrid={[15, 15]}
@@ -135,5 +187,13 @@ export default function BuilderPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function BuilderPage() {
+  return (
+    <ReactFlowProvider>
+      <Flow />
+    </ReactFlowProvider>
   );
 }
