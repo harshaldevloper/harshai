@@ -6,46 +6,17 @@ import { useState, useEffect } from 'react';
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const gradientText = {
-    background: 'linear-gradient(135deg, #a78bfa 0%, #f472b6 50%, #22d3ee 100%)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
-  };
-
-  const buttonGradient = {
-    background: 'linear-gradient(135deg, #9333ea 0%, #06b6d4 100%)',
-  };
-
   const navLinks = ['Home', 'About', 'Use Cases', 'Demo', 'Contact'];
-
-  // Floating orbs animation data
-  const orbs = [
-    { size: 'w-96 h-96', color: 'bg-purple-500', position: '-top-40 -right-40', delay: '0s' },
-    { size: 'w-80 h-80', color: 'bg-indigo-500', position: '-bottom-40 -left-40', delay: '2s' },
-    { size: 'w-72 h-72', color: 'bg-pink-500', position: 'top-1/2 left-1/2', delay: '4s' },
-    { size: 'w-64 h-64', color: 'bg-cyan-500', position: 'top-20 right-20', delay: '6s' },
-    { size: 'w-56 h-56', color: 'bg-blue-500', position: 'bottom-20 left-20', delay: '8s' },
-  ];
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: 'white', overflowX: 'hidden' }}>
       {/* Animated Background Orbs - Loop Forever */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        {orbs.map((orb, index) => (
-          <div
-            key={index}
-            className={`absolute ${orb.size} ${orb.color} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob`}
-            style={{
-              animationDelay: orb.delay,
-              [orb.position.includes('top') ? 'top' : orb.position.includes('bottom') ? 'bottom' : 'top']: 
-                orb.position.includes('top-1/2') ? '50%' : orb.position.includes('-top') ? '-10rem' : orb.position.includes('top-') ? '5rem' : 'auto',
-              [orb.position.includes('left') ? 'left' : orb.position.includes('right') ? 'right' : 'left']:
-                orb.position.includes('left-1/2') ? '50%' : orb.position.includes('-left') ? '-10rem' : orb.position.includes('left-') ? '5rem' : 'auto',
-              transform: orb.position.includes('1/2') ? 'translate(-50%, -50%)' : 'none',
-            }}
-          />
-        ))}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
+        <div className="absolute top-20 right-20 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-6000" />
+        <div className="absolute bottom-20 left-20 w-56 h-56 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-8000" />
       </div>
 
       {/* Gradient Overlay */}
@@ -56,32 +27,31 @@ export default function Home() {
         }}
       />
 
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/80 border-b border-white/10" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex justify-between items-center" style={{ flexWrap: 'nowrap' }}>
+      {/* Navigation - Fixed: No horizontal overflow */}
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/80 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
           {/* Logo */}
           <Link 
             href="/" 
-            className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity flex-shrink-0"
-            style={{ marginRight: '0.75rem' }}
+            className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
           >
             HarshAI
           </Link>
 
           {/* Desktop Navigation - HIDDEN on mobile */}
-          <div className="hidden md:flex md:items-center md:gap-6 lg:gap-8 flex-shrink-0">
-            {navLinks.slice(0, 5).map((item) => (
+          <div className="hidden md:flex items-center gap-4 lg:gap-6">
+            {navLinks.map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
-                className="text-gray-300 hover:text-white font-medium transition-colors duration-200 text-sm lg:text-base whitespace-nowrap"
+                className="text-gray-300 hover:text-white font-medium transition-colors duration-200 text-sm"
               >
                 {item}
               </Link>
             ))}
             <Link
               href="/sign-up"
-              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-5 lg:px-6 py-2 lg:py-2.5 rounded-full font-semibold text-white text-sm lg:text-base hover:scale-105 transition-transform duration-200 flex-shrink-0"
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-5 py-2 rounded-full font-semibold text-white text-sm hover:scale-105 transition-transform duration-200"
             >
               Get Started
             </Link>
@@ -90,8 +60,7 @@ export default function Home() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden text-white text-2xl p-2 flex-shrink-0"
-            aria-label="Toggle menu"
+            className="md:hidden text-white text-2xl p-2"
           >
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
@@ -105,7 +74,7 @@ export default function Home() {
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-gray-300 hover:text-white font-medium py-3 border-b border-white/5"
+                className="text-gray-300 hover:text-white font-medium py-2"
               >
                 {item}
               </Link>
@@ -113,7 +82,7 @@ export default function Home() {
             <Link
               href="/sign-up"
               onClick={() => setMobileMenuOpen(false)}
-              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3.5 rounded-full font-semibold text-white text-center mt-2"
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 rounded-full font-semibold text-white text-center"
             >
               Get Started
             </Link>
@@ -130,10 +99,8 @@ export default function Home() {
           </div>
 
           {/* Main Heading with Gradient */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
-              Your AI Command Center
-            </span>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+            Your AI Command Center
           </h1>
 
           {/* Subtitle */}
@@ -224,4 +191,3 @@ export default function Home() {
     </div>
   );
 }
-// Force rebuild: Thu Apr  2 09:12:09 UTC 2026
