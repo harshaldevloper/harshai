@@ -25,6 +25,7 @@ import SaveButton from '@/components/builder/SaveButton';
 import { TriggerNode, ActionNode, ConditionNode } from '@/components/builder/nodes';
 import { saveWorkflowLocal, createWorkflow } from '@/lib/workflow-storage';
 import { isValidConnection, wouldOrphanNodes } from '@/lib/validate-connection';
+import { getTemplateById } from '@/lib/templates';
 
 // Register custom node types
 const nodeTypes: NodeTypes = {
@@ -56,6 +57,46 @@ function Flow() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [templateLoaded, setTemplateLoaded] = useState(false);
+  const [showNodePanel, setShowNodePanel] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Load template from URL parameter or localStorage
+  useEffect(() => {
+    const templateId = localStorage.getItem('template-to-import');
+    if (templateId && !templateLoaded) {
+      const template = getTemplateById(templateId);
+      if (template) {
+        // Convert template nodes to ReactFlow nodes
+        const templateNodes: Node[] = template.nodes.map(n => ({
+          ...n,
+          data: { ...n.data }
+        }));
+        
+        // Convert template edges to ReactFlow edges
+        const templateEdges: Edge[] = template.edges.map(e => ({
+          ...e,
+          id: e.id || `e${e.source}-${e.target}`
+        }));
+
+        setNodes(templateNodes);
+        setEdges(templateEdges);
+        setTemplateLoaded(true);
+        localStorage.removeItem('template-to-import');
+        console.log('[Builder] Template loaded:', template.name);
+      }
+    }
+  }, [templateLoaded, setNodes, setEdges]);
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
@@ -213,9 +254,46 @@ function Flow() {
     <div className="h-screen flex flex-col" ref={reactFlowWrapper}>
       <Header />
       
+      {/* Mobile Banner - Recommend Desktop */}
+      {isMobile && (
+        <div className="bg-yellow-600/90 border-b border-yellow-500 px-4 py-3 text-center">
+          <p className="text-white text-sm">
+            📱 <strong>Desktop Recommended:</strong> For the best workflow building experience, please use a desktop or laptop. 
+            <button 
+              onClick={() => setShowNodePanel(!showNodePanel)}
+              className="ml-2 underline text-yellow-200"
+            >
+              Toggle Nodes Panel
+            </button>
+          </p>
+        </div>
+      )}
+      
       <div className="flex-1 flex overflow-hidden">
-        {/* Node Panel (Left Sidebar) */}
-        <NodePanel />
+        {/* Node Panel (Left Sidebar) - Hidden on mobile unless toggled */}
+        {(!isMobile || showNodePanel) && (
+          <div className={isMobile ? 'absolute z-20 h-full' : ''}>
+            <NodePanel />
+            {isMobile && (
+              <button
+                onClick={() => setShowNodePanel(false)}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-2 hover:bg-red-700"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Mobile Toggle Button (when panel is hidden) */}
+        {isMobile && !showNodePanel && (
+          <button
+            onClick={() => setShowNodePanel(true)}
+            className="absolute bottom-4 left-4 z-20 bg-purple-600 text-white rounded-full p-3 hover:bg-purple-700 shadow-lg"
+          >
+            ⚡ Nodes
+          </button>
+        )}
 
         {/* Canvas (React Flow) */}
         <div className="flex-1 relative">

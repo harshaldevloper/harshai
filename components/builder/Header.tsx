@@ -26,6 +26,12 @@ export default function Header() {
 
       {/* Right - Actions */}
       <div className="flex items-center gap-3">
+        <Link
+          href="/templates"
+          className="px-4 py-2 text-indigo-200 hover:text-white transition-colors"
+        >
+          Templates
+        </Link>
         <button className="px-4 py-2 text-indigo-200 hover:text-white transition-colors">
           Test
         </button>
