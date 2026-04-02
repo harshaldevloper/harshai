@@ -1,20 +1,20 @@
-import type { Config } from "tailwindcss";
-
-export default {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
-        background: "#0a0a0f",
-        foreground: "#ffffff",
+        background: '#0a0a0f',
+        foreground: '#ffffff',
       },
       animation: {
         blob: 'blob 20s infinite ease-in-out',
         'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
+        'fade-in-up': 'fadeInUp 0.8s ease-out',
       },
       keyframes: {
         blob: {
@@ -27,8 +27,12 @@ export default {
           '0%, 100%': { opacity: '1', boxShadow: '0 0 20px rgba(147, 51, 234, 0.3)' },
           '50%': { opacity: '0.8', boxShadow: '0 0 40px rgba(147, 51, 234, 0.5)' },
         },
+        fadeInUp: {
+          '0%': { opacity: '0', transform: 'translateY(30px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
     },
   },
   plugins: [],
-} satisfies Config;
+}
