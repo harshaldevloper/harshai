@@ -21,7 +21,8 @@ export function isValidConnection(
   nodes: Node[],
   edges: Edge[]
 ): boolean {
-  const { from, to } = connection;
+  const from = connection.source;
+  const to = connection.target;
 
   if (!from || !to) return false;
 
