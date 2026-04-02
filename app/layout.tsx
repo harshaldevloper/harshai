@@ -17,17 +17,6 @@ export const metadata: Metadata = {
   },
 }
 
-import { ClerkProvider } from '@clerk/nextjs'
-import type { Metadata } from "next"
-import './globals.css'
-
-export const metadata: Metadata = {
-  title: "HarshAI - Your AI Command Center",
-  description: "The all-in-one AI automation platform for creators. Connect 50+ AI tools into automated workflows. No code required.",
-  keywords: ["AI automation", "AI workflows", "no code", "AI tools", "productivity"],
-  authors: [{ name: "Harshal Lahare" }],
-}
-
 export default function RootLayout({
   children,
 }: Readonly<{
