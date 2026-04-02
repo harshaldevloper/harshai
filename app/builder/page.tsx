@@ -57,6 +57,21 @@ function Flow() {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
+  const handleSave = useCallback(async () => {
+    setIsSaving(true);
+    
+    try {
+      const workflow = createWorkflow('Untitled Workflow', nodes, edges);
+      saveWorkflowLocal(workflow);
+      setLastSaved(new Date());
+      console.log('[Builder] Auto-saved workflow');
+    } catch (error) {
+      console.error('[Builder] Save failed:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [nodes, edges]);
+
   const onConnect = useCallback(
     (params: Connection) => {
       if (isValidConnection(params, nodes, edges)) {
@@ -181,20 +196,7 @@ function Flow() {
     return () => clearInterval(interval);
   }, [nodes, edges]);
 
-  const handleSave = useCallback(async () => {
-    setIsSaving(true);
-    
-    try {
-      const workflow = createWorkflow('Untitled Workflow', nodes, edges);
-      saveWorkflowLocal(workflow);
-      setLastSaved(new Date());
-      console.log('[Builder] Auto-saved workflow');
-    } catch (error) {
-      console.error('[Builder] Save failed:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [nodes, edges]);
+
 
   const onNodesDelete = useCallback(
     (deleted: Node[]) => {
