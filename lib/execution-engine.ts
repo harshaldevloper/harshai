@@ -308,5 +308,32 @@ export async function executeWorkflow(
   initialData: Record<string, any> = {}
 ): Promise<ExecutionResult> {
   const engine = new WorkflowExecutionEngine(workflowId, workflowName, initialData);
-  return engine.execute(nodes, edges);
+  const result = await engine.execute(nodes, edges);
+  
+  // Log to database if available
+  if (process.env.DATABASE_URL) {
+    try {
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+      
+      // Create execution record
+      await prisma.execution.create({
+        data: {
+          workflowId: workflowId,
+          userId: 'demo-user', // TODO: Get from auth
+          status: result.success ? 'completed' : 'failed',
+          result: result.output,
+          error: result.error,
+        },
+      });
+      
+      console.log('[ExecutionEngine] Logged to database');
+      await prisma.$disconnect();
+    } catch (error) {
+      console.error('[ExecutionEngine] Failed to log to database:', error);
+      // Don't throw - execution already completed
+    }
+  }
+  
+  return result;
 }

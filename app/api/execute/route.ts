@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeWorkflow } from '@/lib/execution-engine';
 import { getTemplateById } from '@/lib/templates';
+import { PrismaClient } from '@prisma/client';
 
 /**
  * POST /api/execute - Execute a workflow
@@ -12,6 +13,8 @@ import { getTemplateById } from '@/lib/templates';
  * - data: object (initial data for the workflow)
  */
 export async function POST(request: NextRequest) {
+  const prisma = new PrismaClient();
+  
   try {
     const body = await request.json();
     const { workflowId, nodes, edges, data = {} } = body;
@@ -47,8 +50,17 @@ export async function POST(request: NextRequest) {
       workflowName = 'Custom Workflow';
     }
 
-    console.log(`[API] Executing workflow: ${workflowName}`);
-    console.log(`[API] Nodes: ${workflowNodes.length}, Edges: ${workflowEdges.length}`);
+    // Create execution record
+    const execution = await prisma.execution.create({
+      data: {
+        workflowId: workflowId || 'custom',
+        userId: 'demo-user', // TODO: Get from auth
+        status: 'running',
+        result: { status: 'started' },
+      },
+    });
+
+    console.log(`[API] Execution ID: ${execution.id}, Workflow: ${workflowName}`);
 
     // Execute the workflow
     const result = await executeWorkflow(
@@ -59,7 +71,18 @@ export async function POST(request: NextRequest) {
       data
     );
 
-    console.log(`[API] Execution completed: ${result.success ? 'SUCCESS' : 'FAILED'}`);
+    // Update execution record
+    await prisma.execution.update({
+      where: { id: execution.id },
+      data: {
+        status: result.success ? 'completed' : 'failed',
+        result: result.output,
+        error: result.error,
+        completedAt: new Date(),
+      },
+    });
+
+    console.log(`[API] Execution ${execution.id} completed: ${result.success ? 'SUCCESS' : 'FAILED'}`);
     console.log(`[API] Execution time: ${result.executionTime}ms`);
     console.log(`[API] Steps executed: ${result.stepsExecuted}`);
 
@@ -70,6 +93,7 @@ export async function POST(request: NextRequest) {
       executionTime: result.executionTime,
       stepsExecuted: result.stepsExecuted,
       error: result.error,
+      executionId: execution.id,
     });
   } catch (error) {
     console.error('[API] Workflow execution failed:', error);
@@ -80,16 +104,62 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
 /**
- * GET /api/execute - Get execution history (future implementation)
+ * GET /api/execute - Get execution history
+ * Query params: workflowId, status, limit
  */
 export async function GET(request: NextRequest) {
-  // Future: Return execution history from database
-  return NextResponse.json({
-    message: 'Execution history endpoint - coming soon',
-    executions: [],
-  });
+  const prisma = new PrismaClient();
+  
+  try {
+    const { searchParams } = new URL(request.url);
+    const workflowId = searchParams.get('workflowId');
+    const status = searchParams.get('status');
+    const limit = parseInt(searchParams.get('limit') || '10');
+
+    const where: any = {};
+    if (workflowId) where.workflowId = workflowId;
+    if (status) where.status = status;
+
+    const executions = await prisma.execution.findMany({
+      where,
+      orderBy: { startedAt: 'desc' },
+      take: limit,
+      include: {
+        workflow: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      executions: executions.map(e => ({
+        id: e.id,
+        workflowId: e.workflowId,
+        workflowName: e.workflow.name,
+        status: e.status,
+        result: e.result,
+        error: e.error,
+        startedAt: e.startedAt,
+        completedAt: e.completedAt,
+      })),
+      total: executions.length,
+    });
+  } catch (error) {
+    console.error('[API] Failed to fetch executions:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch execution history' },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
 }

@@ -53,7 +53,7 @@ export async function executeAction(
  * Send prompt to OpenAI and get response
  */
 async function executeChatGPT(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
-  const { prompt, model = 'gpt-4' } = config;
+  const { prompt, model = 'gpt-3.5-turbo' } = config;
 
   if (!prompt) {
     throw new Error('ChatGPT action requires a prompt');
@@ -62,18 +62,58 @@ async function executeChatGPT(config: ActionConfig, contextData: Record<string, 
   // Interpolate context variables into prompt
   const interpolatedPrompt = interpolateVariables(prompt, contextData);
 
+  // Check for API key
+  const apiKey = process.env.OPENAI_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('[ChatGPT] OPENAI_API_KEY not set, using mock response');
+    return {
+      content: `[Mock ChatGPT Response] Processed: "${interpolatedPrompt.substring(0, 50)}..."`,
+      model,
+      usage: { promptTokens: 50, completionTokens: 100, totalTokens: 150 },
+      note: 'Set OPENAI_API_KEY in .env to use real API'
+    };
+  }
+
   console.log(`[ChatGPT] Sending prompt to ${model}...`);
 
-  // In production, call OpenAI API here
-  // For now, return mock response
-  const mockResponse = {
-    content: `[Mock ChatGPT Response] Processed: "${interpolatedPrompt.substring(0, 50)}..."`,
-    model,
-    usage: { promptTokens: 50, completionTokens: 100, totalTokens: 150 },
-  };
+  try {
+    // Make real OpenAI API call
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: 'You are a helpful assistant.' },
+          { role: 'user', content: interpolatedPrompt }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000,
+      }),
+    });
 
-  console.log('[ChatGPT] Response received');
-  return mockResponse;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`OpenAI API error: ${error.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || 'No response';
+
+    console.log('[ChatGPT] Response received');
+    return {
+      content,
+      model: data.model,
+      usage: data.usage,
+    };
+  } catch (error) {
+    console.error('[ChatGPT] API call failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -92,17 +132,31 @@ async function executeWebhook(config: ActionConfig, contextData: Record<string, 
 
   console.log(`[Webhook] Sending ${method} to ${url}...`);
 
-  // In production, make actual HTTP request
-  // For now, return mock response
-  const mockResponse = {
-    status: 200,
-    data: { success: true, message: 'Webhook received' },
-    url,
-    method,
-  };
+  try {
+    // Make real HTTP request
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers,
+      },
+      body: JSON.stringify(interpolatedBody),
+    });
 
-  console.log('[Webhook] Response received');
-  return mockResponse;
+    const responseData = await response.json().catch(() => ({}));
+
+    console.log(`[Webhook] Response: ${response.status}`);
+    return {
+      status: response.status,
+      data: responseData,
+      url,
+      method,
+      headers: Object.fromEntries(response.headers.entries()),
+    };
+  } catch (error) {
+    console.error('[Webhook] Request failed:', error);
+    throw error;
+  }
 }
 
 /**
