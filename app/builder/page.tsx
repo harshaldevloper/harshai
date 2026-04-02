@@ -268,6 +268,7 @@ function Flow() {
           <ConfigPanel 
             node={selectedNode} 
             onClose={() => setSelectedNode(null)}
+          />
         )}
 
         {/* Edge Config Panel */}
