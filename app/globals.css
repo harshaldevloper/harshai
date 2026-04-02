@@ -49,24 +49,24 @@ body {
 
 /* Smooth Animations */
 
-/* Blob Animation for Auth Pages */
+/* Blob Animation - Smooth Loop Forever */
 @keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
   }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
+  25% {
+    transform: translate(20px, -30px) scale(1.05);
   }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
+  50% {
+    transform: translate(-15px, 20px) scale(0.95);
   }
-  100% {
-    transform: translate(0px, 0px) scale(1);
+  75% {
+    transform: translate(25px, 15px) scale(1.02);
   }
 }
 
 .animate-blob {
-  animation: blob 10s infinite;
+  animation: blob 20s infinite ease-in-out;
 }
 
 .animation-delay-2000 {
@@ -75,6 +75,30 @@ body {
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+.animation-delay-6000 {
+  animation-delay: 6s;
+}
+
+.animation-delay-8000 {
+  animation-delay: 8s;
+}
+
+/* Pulse Animation for Badge */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite ease-in-out;
 }
 
 /* Mobile Responsive Utilities */

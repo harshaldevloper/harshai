@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -19,61 +19,68 @@ export default function Home() {
 
   const navLinks = ['Home', 'About', 'Use Cases', 'Demo', 'Contact'];
 
+  // Floating orbs animation data
+  const orbs = [
+    { size: 'w-96 h-96', color: 'bg-purple-500', position: '-top-40 -right-40', delay: '0s' },
+    { size: 'w-80 h-80', color: 'bg-indigo-500', position: '-bottom-40 -left-40', delay: '2s' },
+    { size: 'w-72 h-72', color: 'bg-pink-500', position: 'top-1/2 left-1/2', delay: '4s' },
+    { size: 'w-64 h-64', color: 'bg-cyan-500', position: 'top-20 right-20', delay: '6s' },
+    { size: 'w-56 h-56', color: 'bg-blue-500', position: 'bottom-20 left-20', delay: '8s' },
+  ];
+
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: 'white', overflowX: 'hidden' }}>
-      {/* Animated Background */}
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'radial-gradient(circle at 25% 25%, rgba(147, 51, 234, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.15) 0%, transparent 50%)',
-        pointerEvents: 'none',
-      }} />
+      {/* Animated Background Orbs - Loop Forever */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        {orbs.map((orb, index) => (
+          <div
+            key={index}
+            className={`absolute ${orb.size} ${orb.color} rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob`}
+            style={{
+              animationDelay: orb.delay,
+              [orb.position.includes('top') ? 'top' : orb.position.includes('bottom') ? 'bottom' : 'top']: 
+                orb.position.includes('top-1/2') ? '50%' : orb.position.includes('-top') ? '-10rem' : orb.position.includes('top-') ? '5rem' : 'auto',
+              [orb.position.includes('left') ? 'left' : orb.position.includes('right') ? 'right' : 'left']:
+                orb.position.includes('left-1/2') ? '50%' : orb.position.includes('-left') ? '-10rem' : orb.position.includes('left-') ? '5rem' : 'auto',
+              transform: orb.position.includes('1/2') ? 'translate(-50%, -50%)' : 'none',
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Gradient Overlay */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 25% 25%, rgba(147, 51, 234, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.15) 0%, transparent 50%)',
+        }}
+      />
 
       {/* Navigation */}
-      <nav style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 50,
-        padding: '1rem 1.5rem',
-        backdropFilter: 'blur(20px)',
-        background: 'rgba(10, 10, 15, 0.8)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-2xl bg-black/80 border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: 900, ...gradientText, textDecoration: 'none' }}>
+          <Link 
+            href="/" 
+            className="text-3xl md:text-4xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+          >
             HarshAI
           </Link>
 
           {/* Desktop Navigation */}
-          <div style={{ display: 'none', md: 'flex', gap: '2rem', alignItems: 'center' }} className="hidden md:flex">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
-                style={{ color: '#d1d5db', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s', fontSize: '0.95rem' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#d1d5db'}
+                className="text-gray-300 hover:text-white font-medium transition-colors duration-200"
               >
                 {item}
               </Link>
             ))}
             <Link
               href="/sign-up"
-              style={{
-                ...buttonGradient,
-                padding: '0.625rem 1.5rem',
-                borderRadius: '9999px',
-                fontWeight: 600,
-                color: 'white',
-                textDecoration: 'none',
-                transition: 'transform 0.2s',
-                fontSize: '0.95rem',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-2.5 rounded-full font-semibold text-white hover:scale-105 transition-transform duration-200"
             >
               Get Started
             </Link>
@@ -82,16 +89,7 @@ export default function Home() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden"
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: 'white',
-              fontSize: '1.5rem',
-              cursor: 'pointer',
-              padding: '0.5rem',
-              display: 'block',
-            }}
+            className="md:hidden text-white text-2xl p-2"
           >
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
@@ -99,24 +97,13 @@ export default function Home() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            background: 'rgba(10, 10, 15, 0.98)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-            padding: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-          }} className="md:hidden">
+          <div className="md:hidden bg-black/98 border-t border-white/10 px-6 py-4 flex flex-col gap-4">
             {navLinks.map((item) => (
               <Link
                 key={item}
                 href={`#${item.toLowerCase().replace(' ', '-')}`}
                 onClick={() => setMobileMenuOpen(false)}
-                style={{ color: '#d1d5db', textDecoration: 'none', fontWeight: 500, fontSize: '1.1rem', padding: '0.5rem 0' }}
+                className="text-gray-300 hover:text-white font-medium py-2"
               >
                 {item}
               </Link>
@@ -124,16 +111,7 @@ export default function Home() {
             <Link
               href="/sign-up"
               onClick={() => setMobileMenuOpen(false)}
-              style={{
-                ...buttonGradient,
-                padding: '0.875rem 1.5rem',
-                borderRadius: '9999px',
-                fontWeight: 600,
-                color: 'white',
-                textDecoration: 'none',
-                textAlign: 'center',
-                marginTop: '0.5rem',
-              }}
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 rounded-full font-semibold text-white text-center"
             >
               Get Started
             </Link>
@@ -142,117 +120,55 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" style={{
-        position: 'relative',
-        zIndex: 10,
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '6rem 1.5rem 4rem',
-      }}>
-        <div style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <div style={{
-            display: 'inline-block',
-            padding: '0.5rem 1rem',
-            background: 'rgba(147, 51, 234, 0.1)',
-            border: '1px solid rgba(147, 51, 234, 0.3)',
-            borderRadius: '9999px',
-            color: '#c4b5fd',
-            fontSize: '0.875rem',
-            fontWeight: 500,
-            marginBottom: '2rem',
-          }}>
+      <section id="home" className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-20">
+        <div className="text-center max-w-5xl">
+          {/* Badge */}
+          <div className="inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-8 animate-pulse">
             ✨ The Future of AI Automation
           </div>
-          <h1 style={{ 
-            fontSize: 'clamp(2.5rem, 8vw, 5rem)', 
-            fontWeight: 900, 
-            marginBottom: '1.5rem', 
-            lineHeight: 1.1,
-            ...gradientText 
-          }}>
-            Your AI Command Center
+
+          {/* Main Heading with Gradient */}
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight">
+            <span className="bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+              Your AI Command Center
+            </span>
           </h1>
-          <p style={{ 
-            fontSize: 'clamp(1.125rem, 3vw, 1.5rem)', 
-            color: '#9ca3af', 
-            marginBottom: '3rem', 
-            lineHeight: 1.7,
-          }}>
+
+          {/* Subtitle */}
+          <p className="text-xl md:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
             Connect 50+ AI tools into automated workflows. No code required.
-            <br style={{ display: 'none', sm: 'inline' }} />
+            <br className="hidden md:block" />
             Build once, automate forever.
           </p>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/builder"
-              style={{
-                ...buttonGradient,
-                padding: '1rem 2.5rem',
-                borderRadius: '9999px',
-                fontWeight: 600,
-                color: 'white',
-                textDecoration: 'none',
-                fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-                transition: 'transform 0.2s',
-                display: 'inline-block',
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25"
             >
               Try Builder →
             </Link>
             <Link
               href="/sign-up"
-              style={{
-                background: 'transparent',
-                border: '2px solid rgba(147, 51, 234, 0.5)',
-                padding: '1rem 2.5rem',
-                borderRadius: '9999px',
-                fontWeight: 600,
-                color: 'white',
-                textDecoration: 'none',
-                fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-                transition: 'all 0.2s',
-                display: 'inline-block',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(147, 51, 234, 0.1)';
-                e.currentTarget.style.borderColor = 'rgba(147, 51, 234, 0.8)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(147, 51, 234, 0.5)';
-              }}
+              className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg hover:bg-purple-500/10 hover:border-purple-500 transition-all duration-200"
             >
               Get Started Free
             </Link>
           </div>
 
           {/* Stats */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-            gap: '2rem',
-            marginTop: '5rem',
-            padding: '2rem 0',
-          }}>
+          <div className="grid grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
             {[
               { value: '50+', label: 'AI Integrations' },
               { value: '10K+', label: 'Active Users' },
               { value: '1M+', label: 'Workflows Created' },
             ].map((stat) => (
-              <div key={stat.label} style={{ textAlign: 'center' }}>
-                <div style={{
-                  fontSize: 'clamp(2rem, 5vw, 3rem)',
-                  fontWeight: 900,
-                  ...gradientText,
-                }}>
+              <div key={stat.label} className="text-center">
+                <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                   {stat.value}
                 </div>
-                <div style={{ color: '#9ca3af', fontSize: '0.875rem', marginTop: '0.5rem' }}>
+                <div className="text-gray-500 text-sm md:text-base mt-2 font-medium">
                   {stat.label}
                 </div>
               </div>
@@ -261,62 +177,32 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why HarshAI Section */}
-      <section id="about" style={{
-        position: 'relative',
-        zIndex: 10,
-        padding: '6rem 1.5rem',
-        background: 'rgba(255, 255, 255, 0.02)',
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
-              fontWeight: 900,
-              marginBottom: '1rem',
-              ...gradientText,
-            }}>
+      {/* Features Section */}
+      <section id="about" className="relative z-10 py-24 px-6 bg-white/5">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-6xl font-black mb-4 bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
               Why HarshAI?
             </h2>
-            <p style={{ color: '#9ca3af', fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', maxWidth: '600px', margin: '0 auto' }}>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
               Stop juggling 10+ AI tools. Automate everything in one place.
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2rem',
-          }}>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { icon: '🎨', title: 'Visual Builder', desc: 'Drag, drop, automate. No code required. If you can use Canva, you can build workflows.' },
-              { icon: '🔗', title: '50+ Integrations', desc: 'ChatGPT, Claude, ElevenLabs, Midjourney, and 45+ more AI tools connected.' },
-              { icon: '⚡', title: 'Smart Triggers', desc: 'Schedule, webhook, upload, email. Workflows run automatically when you need them.' },
-              { icon: '🧠', title: 'Conditional Logic', desc: 'Add intelligence with if/then rules. Make workflows smart, not just automated.' },
+              { icon: '🎨', title: 'Visual Builder', desc: 'Drag, drop, automate. No code required.' },
+              { icon: '🔗', title: '50+ Integrations', desc: 'ChatGPT, Claude, ElevenLabs & more.' },
+              { icon: '⚡', title: 'Smart Triggers', desc: 'Schedule, webhook, upload automation.' },
+              { icon: '🧠', title: 'Conditional Logic', desc: 'If/then rules for smart workflows.' },
             ].map((feature) => (
               <div
                 key={feature.title}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '1.5rem',
-                  padding: '2rem',
-                  transition: 'all 0.3s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                  e.currentTarget.style.borderColor = 'rgba(147, 51, 234, 0.3)';
-                  e.currentTarget.style.transform = 'translateY(-5px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
+                className="group bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-2"
               >
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{feature.icon}</div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '0.75rem' }}>{feature.title}</h3>
-                <p style={{ color: '#9ca3af', lineHeight: 1.7 }}>{feature.desc}</p>
+                <div className="text-5xl mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
+                <p className="text-gray-400">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -324,17 +210,11 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer style={{
-        position: 'relative',
-        zIndex: 10,
-        padding: '3rem 1.5rem',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        textAlign: 'center',
-      }}>
-        <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+      <footer className="relative z-10 py-12 px-6 border-t border-white/10 text-center">
+        <p className="text-gray-500 text-sm">
           © 2026 HarshAI. All rights reserved.
         </p>
-        <p style={{ color: '#4b5563', fontSize: '0.75rem', marginTop: '1rem' }}>
+        <p className="text-gray-600 text-xs mt-4 max-w-2xl mx-auto">
           All third-party trademarks are property of their respective owners.
           HarshAI is not affiliated with, endorsed by, or sponsored by any mentioned companies.
         </p>
