@@ -173,6 +173,10 @@ export class WorkflowExecutionEngine {
     // Import action executors dynamically
     const { executeAction } = await import('./action-executors');
     
+    if (!actionType) {
+      throw new Error('Action type is required');
+    }
+    
     try {
       const result = await executeAction(actionType, config, this.context.data);
       return { actionType, result };
