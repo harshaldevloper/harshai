@@ -473,6 +473,12 @@ async function executePinterest(config: ActionConfig, contextData: Record<string
     };
   }
 
+  // Check if token is a sandbox token (starts with pina_)
+  const isSandbox = accessToken.startsWith('pina_');
+  if (isSandbox) {
+    console.log('[Pinterest] Using SANDBOX mode');
+  }
+
   const interpolatedTitle = title ? interpolateVariables(String(title), contextData) : 'Untitled Pin';
   const interpolatedDescription = description ? interpolateVariables(String(description), contextData) : '';
   const interpolatedLink = link ? interpolateVariables(String(link), contextData) : '';
@@ -481,8 +487,12 @@ async function executePinterest(config: ActionConfig, contextData: Record<string
   console.log(`[Pinterest] Creating pin: ${interpolatedTitle}...`);
 
   try {
-    // Call Pinterest API v5 (Sandbox)
-    const response = await fetch('https://api.pinterest.com/v5/pins', {
+    // Call Pinterest API v5 (Sandbox or Production)
+    const baseUrl = isSandbox 
+      ? 'https://api.pinterest.com/v5/pins' 
+      : 'https://api.pinterest.com/v5/pins';
+    
+    const response = await fetch(baseUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -501,9 +511,14 @@ async function executePinterest(config: ActionConfig, contextData: Record<string
       }),
     });
 
+    const errorData = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(`Pinterest API error: ${error.message || response.statusText}`);
+      // Provide helpful error message for common issues
+      if (errorData.code === 2) {
+        throw new Error('Pinterest Authentication failed. Please check your access token and app ID. Sandbox tokens may expire - regenerate if needed.');
+      }
+      throw new Error(`Pinterest API error: ${errorData.message || response.statusText}`);
     }
 
     const data = await response.json();
