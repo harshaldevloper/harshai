@@ -7,6 +7,9 @@ const nextConfig = {
     REDIS_URL: process.env.REDIS_URL,
     PADDLE_API_KEY: process.env.PADDLE_API_KEY,
   },
+  turbopack: {
+    root: __dirname,
+  },
 }
 
 module.exports = nextConfig
