@@ -32,6 +32,12 @@ export default function Header() {
         >
           Templates
         </Link>
+        <Link
+          href="/settings/integrations"
+          className="px-4 py-2 text-indigo-200 hover:text-white transition-colors"
+        >
+          ⚙️ Integrations
+        </Link>
         <button 
           onClick={async () => {
             alert('🚀 Workflow execution engine ready! Check /api/execute endpoint.');
