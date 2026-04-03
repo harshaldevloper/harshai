@@ -49,7 +49,6 @@ export async function POST(
         userId: 'webhook-user', // TODO: Get from auth
         status: 'running',
         result: { status: 'started', webhookPayload: payload },
-        triggeredBy: 'webhook',
       },
     });
 
