@@ -34,14 +34,7 @@ const nodeTypes: NodeTypes = {
   condition: ConditionNode,
 };
 
-const initialNodes: Node[] = [
-  {
-    id: '1',
-    type: 'trigger',
-    position: { x: 250, y: 100 },
-    data: { label: 'YouTube Upload', triggerType: 'youtube' as const },
-  },
-];
+const initialNodes: Node[] = [];
 
 const initialEdges: Edge[] = [];
 
@@ -315,7 +308,7 @@ function Flow() {
             snapGrid={[15, 15]}
             nodeTypes={nodeTypes}
             className="bg-gray-900"
-            deleteKeyCode={[]} // We handle deletion manually
+            deleteKeyCode={['Backspace', 'Delete']} // Allow Delete/Backspace to delete nodes
           >
             <Controls className="!bg-gray-800 !border-gray-700" />
             <Background color="#374151" gap={20} />
