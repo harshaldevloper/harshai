@@ -171,8 +171,8 @@ async function executeGmail(config: ActionConfig, contextData: Record<string, an
   }
 
   // Interpolate variables
-  const interpolatedSubject = subject ? interpolateVariables(subject, contextData) : 'No Subject';
-  const interpolatedBody = emailBody ? interpolateVariables(emailBody, contextData) : '';
+  const interpolatedSubject = subject ? interpolateVariables(String(subject), contextData) : 'No Subject';
+  const interpolatedBody = emailBody ? interpolateVariables(String(emailBody), contextData) : '';
 
   const accessToken = process.env.GMAIL_ACCESS_TOKEN;
 
