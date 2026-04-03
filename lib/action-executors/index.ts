@@ -26,25 +26,28 @@ export async function executeAction(
 ): Promise<any> {
   console.log(`[ActionExecutor] Executing: ${actionType}`, config);
 
+  // Check if TEST MODE is enabled (no credentials required)
+  const testMode = process.env.INTEGRATION_TEST_MODE === 'true';
+
   switch (actionType) {
     case 'chatgpt':
-      return executeChatGPT(config, contextData);
+      return testMode ? executeMockChatGPT(config, contextData) : executeChatGPT(config, contextData);
     case 'webhook':
-      return executeWebhook(config, contextData);
+      return executeWebhook(config, contextData); // Webhook always works (public URLs)
     case 'gmail':
-      return executeGmail(config, contextData);
+      return testMode ? executeMockGmail(config, contextData) : executeGmail(config, contextData);
     case 'twitter':
-      return executeTwitter(config, contextData);
+      return testMode ? executeMockTwitter(config, contextData) : executeTwitter(config, contextData);
     case 'notion':
-      return executeNotion(config, contextData);
+      return testMode ? executeMockNotion(config, contextData) : executeNotion(config, contextData);
     case 'slack':
-      return executeSlack(config, contextData);
+      return testMode ? executeMockSlack(config, contextData) : executeSlack(config, contextData);
     case 'spreadsheet':
-      return executeSpreadsheet(config, contextData);
+      return testMode ? executeMockSpreadsheet(config, contextData) : executeSpreadsheet(config, contextData);
     case 'youtube-transcript':
-      return executeYouTubeTranscript(config, contextData);
+      return testMode ? executeMockYouTubeTranscript(config, contextData) : executeYouTubeTranscript(config, contextData);
     case 'pinterest':
-      return executePinterest(config, contextData);
+      return testMode ? executeMockPinterest(config, contextData) : executePinterest(config, contextData);
     default:
       throw new Error(`Unknown action type: ${actionType}`);
   }
@@ -622,4 +625,189 @@ function interpolateVariablesInObject(obj: any, context: Record<string, any>): a
   }
   
   return obj;
+}
+
+// ============================================
+// MOCK FUNCTIONS (TEST MODE - NO CREDENTIALS)
+// ============================================
+
+/**
+ * Mock ChatGPT - Returns realistic test response
+ */
+async function executeMockChatGPT(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { prompt, model = 'gpt-3.5-turbo' } = config;
+  const interpolatedPrompt = prompt ? interpolateVariables(String(prompt), contextData) : 'No prompt';
+
+  console.log('[Mock ChatGPT] TEST MODE - No API key required');
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    content: `[TEST RESPONSE] This is a mock ChatGPT response. In production, this would call the real OpenAI API. Prompt received: "${interpolatedPrompt.substring(0, 50)}..."`,
+    model,
+    usage: { promptTokens: 50, completionTokens: 100, totalTokens: 150 },
+    note: '✅ Test mode working! Add OPENAI_API_KEY to use real API.',
+  };
+}
+
+/**
+ * Mock Gmail - Simulates email sending
+ */
+async function executeMockGmail(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { to, subject, body: emailBody } = config;
+  const interpolatedSubject = subject ? interpolateVariables(String(subject), contextData) : 'Test Email';
+  const interpolatedBody = emailBody ? interpolateVariables(String(emailBody), contextData) : 'Test body';
+
+  console.log('[Mock Gmail] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    messageId: `test-${Date.now()}`,
+    to: to || 'test@example.com',
+    subject: interpolatedSubject,
+    body: interpolatedBody,
+    note: '✅ Test mode working! Add GMAIL_ACCESS_TOKEN to send real emails.',
+  };
+}
+
+/**
+ * Mock Twitter - Simulates tweet posting
+ */
+async function executeMockTwitter(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { content } = config;
+  const interpolatedContent = content ? interpolateVariables(String(content), contextData) : 'Test tweet';
+
+  console.log('[Mock Twitter] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    tweetId: `test-tweet-${Date.now()}`,
+    url: 'https://twitter.com/test/status/mock',
+    content: interpolatedContent,
+    note: '✅ Test mode working! Add TWITTER_BEARER_TOKEN to post real tweets.',
+  };
+}
+
+/**
+ * Mock Notion - Simulates page creation
+ */
+async function executeMockNotion(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { title, content } = config;
+  const interpolatedTitle = title ? interpolateVariables(String(title), contextData) : 'Test Page';
+  const interpolatedContent = content ? interpolateVariables(String(content), contextData) : 'Test content';
+
+  console.log('[Mock Notion] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    pageId: `test-page-${Date.now()}`,
+    url: 'https://notion.so/test-page-mock',
+    title: interpolatedTitle,
+    content: interpolatedContent,
+    note: '✅ Test mode working! Add NOTION_API_KEY to create real pages.',
+  };
+}
+
+/**
+ * Mock Slack - Simulates message sending
+ */
+async function executeMockSlack(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { channel, message } = config;
+  const interpolatedMessage = message ? interpolateVariables(String(message), contextData) : 'Test message';
+
+  console.log('[Mock Slack] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    ts: `${Date.now()}.test`,
+    channel: channel || '#test',
+    message: interpolatedMessage,
+    url: 'https://app.slack.com/client/test/mock',
+    note: '✅ Test mode working! Add SLACK_BOT_TOKEN to send real messages.',
+  };
+}
+
+/**
+ * Mock Pinterest - Simulates pin creation
+ */
+async function executeMockPinterest(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { title, description, link, mediaSource } = config;
+  const interpolatedTitle = title ? interpolateVariables(String(title), contextData) : 'Test Pin';
+  const interpolatedDescription = description ? interpolateVariables(String(description), contextData) : 'Test description';
+  const interpolatedLink = link ? interpolateVariables(String(link), contextData) : '';
+  const interpolatedMediaSource = mediaSource ? interpolateVariables(String(mediaSource), contextData) : '';
+
+  console.log('[Mock Pinterest] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    pinId: `test-pin-${Date.now()}`,
+    title: interpolatedTitle,
+    description: interpolatedDescription,
+    link: interpolatedLink,
+    mediaSource: interpolatedMediaSource,
+    url: 'https://pinterest.com/pin/test-mock',
+    note: '✅ Test mode working! Add PINTEREST_ACCESS_TOKEN to create real pins.',
+  };
+}
+
+/**
+ * Mock Spreadsheet - Simulates sheet update
+ */
+async function executeMockSpreadsheet(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { sheet, data } = config;
+
+  console.log('[Mock Spreadsheet] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    spreadsheetId: 'test-spreadsheet-id',
+    sheet: sheet || 'Sheet1',
+    rowsUpdated: 1,
+    data: data || {},
+    note: '✅ Test mode working! Add Google Sheets credentials to update real spreadsheets.',
+  };
+}
+
+/**
+ * Mock YouTube Transcript - Simulates transcript extraction
+ */
+async function executeMockYouTubeTranscript(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { videoId, language = 'en' } = config;
+  const actualVideoId = videoId || contextData.videoId || 'test-video';
+
+  console.log('[Mock YouTube Transcript] TEST MODE - No API key required');
+  
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  return {
+    success: true,
+    mode: 'TEST (no credentials)',
+    videoId: actualVideoId,
+    language,
+    transcript: '[TEST TRANSCRIPT] This is a mock YouTube transcript. In production, this would extract the real transcript from the video.',
+    duration: '5:00',
+    note: '✅ Test mode working! Add YouTube API credentials to extract real transcripts.',
+  };
 }
