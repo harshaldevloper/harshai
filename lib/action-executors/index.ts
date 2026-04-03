@@ -43,6 +43,8 @@ export async function executeAction(
       return executeSpreadsheet(config, contextData);
     case 'youtube-transcript':
       return executeYouTubeTranscript(config, contextData);
+    case 'pinterest':
+      return executePinterest(config, contextData);
     default:
       throw new Error(`Unknown action type: ${actionType}`);
   }
@@ -448,6 +450,76 @@ async function executeSlack(config: ActionConfig, contextData: Record<string, an
     };
   } catch (error) {
     console.error('[Slack] API call failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Pinterest Action
+ * Create pin on Pinterest (Sandbox API)
+ */
+async function executePinterest(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
+  const { title, description, link, mediaSource, boardId } = config;
+  const accessToken = process.env.PINTEREST_ACCESS_TOKEN;
+  const appId = process.env.PINTEREST_APP_ID;
+
+  if (!accessToken) {
+    console.warn('[Pinterest] PINTEREST_ACCESS_TOKEN not set, using mock response');
+    return {
+      success: true,
+      pinId: `mock-pin-${Date.now()}`,
+      title: title || 'Untitled Pin',
+      note: 'Set PINTEREST_ACCESS_TOKEN in .env to use real Pinterest API'
+    };
+  }
+
+  const interpolatedTitle = title ? interpolateVariables(String(title), contextData) : 'Untitled Pin';
+  const interpolatedDescription = description ? interpolateVariables(String(description), contextData) : '';
+  const interpolatedLink = link ? interpolateVariables(String(link), contextData) : '';
+  const interpolatedMediaSource = mediaSource ? interpolateVariables(String(mediaSource), contextData) : '';
+
+  console.log(`[Pinterest] Creating pin: ${interpolatedTitle}...`);
+
+  try {
+    // Call Pinterest API v5 (Sandbox)
+    const response = await fetch('https://api.pinterest.com/v5/pins', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-Api-Source': appId || '',
+      },
+      body: JSON.stringify({
+        board_id: boardId || undefined,
+        title: interpolatedTitle,
+        description: interpolatedDescription,
+        link: interpolatedLink || undefined,
+        media_source: mediaSource ? {
+          source_type: 'image_url',
+          url: interpolatedMediaSource,
+        } : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Pinterest API error: ${error.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const pinId = data.id;
+    
+    console.log('[Pinterest] Pin created');
+    return {
+      success: true,
+      pinId,
+      title: interpolatedTitle,
+      url: `https://pinterest.com/pin/${pinId}`,
+      board_id: data.board_id,
+      created_at: data.created_at,
+    };
+  } catch (error) {
+    console.error('[Pinterest] API call failed:', error);
     throw error;
   }
 }

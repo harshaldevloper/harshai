@@ -1,7 +1,7 @@
 # 🔑 API Keys Setup Guide
 
 **For:** HarshAI Workflow Automation  
-**Last Updated:** 2026-04-03 (Day 17)
+**Last Updated:** 2026-04-03 (Day 18 - Pinterest Added)
 
 ---
 
@@ -108,6 +108,29 @@ NOTION_DATABASE_ID=...  # Optional: default database
 SLACK_BOT_TOKEN=xoxb-...
 SLACK_CHANNEL_ID=C...  # Optional: default channel
 ```
+
+**Pricing:** Free
+
+---
+
+### 6. Pinterest (Pin Creation) ✅ NEW
+
+**Required For:** Creating pins, boards, saving products
+
+**How to Get:**
+1. Go to https://developers.pinterest.com/
+2. Create developer account
+3. Create new app
+4. Get App ID and App Secret
+5. Generate Access Token (Sandbox for testing)
+
+**Environment Variables:**
+```bash
+PINTEREST_ACCESS_TOKEN=pina_...
+PINTEREST_APP_ID=1556085
+```
+
+**Note:** Use SANDBOX token for development (Read + Write access)
 
 **Pricing:** Free
 

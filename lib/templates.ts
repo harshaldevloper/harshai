@@ -424,6 +424,136 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       { id: 'e3-5', source: '3', target: '5', animated: true, type: 'smoothstep' },
       { id: 'e3-6', source: '3', target: '6', animated: true, type: 'smoothstep' }
     ]
+  },
+  {
+    id: 'blog-to-pinterest',
+    name: 'Blog Post → Pinterest Pin',
+    description: 'Automatically create Pinterest pins from new blog posts',
+    category: 'social-media',
+    difficulty: 'beginner',
+    estimatedTime: '10 minutes',
+    tags: ['Pinterest', 'Blog', 'Social Media', 'Marketing'],
+    nodes: [
+      {
+        id: '1',
+        type: 'trigger',
+        position: { x: 250, y: 50 },
+        data: {
+          label: 'Webhook',
+          triggerType: 'webhook',
+          config: { webhookUrl: 'your-webhook-url' }
+        }
+      },
+      {
+        id: '2',
+        type: 'action',
+        position: { x: 250, y: 200 },
+        data: {
+          label: 'ChatGPT',
+          actionType: 'chatgpt',
+          config: {
+            prompt: 'Create a catchy Pinterest pin title and description for this blog post: {{blogTitle}}',
+            model: 'gpt-3.5-turbo'
+          }
+        }
+      },
+      {
+        id: '3',
+        type: 'action',
+        position: { x: 250, y: 350 },
+        data: {
+          label: 'Pinterest',
+          actionType: 'pinterest',
+          config: {
+            title: '{{ChatGPT.title}}',
+            description: '{{ChatGPT.description}}',
+            link: '{{blogUrl}}',
+            mediaSource: '{{blogImageUrl}}'
+          }
+        }
+      }
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2', animated: true, type: 'smoothstep' },
+      { id: 'e2-3', source: '2', target: '3', animated: true, type: 'smoothstep' }
+    ]
+  }
+];
+    nodes: [
+      {
+        id: '1',
+        type: 'trigger',
+        position: { x: 250, y: 50 },
+        data: {
+          label: 'Email',
+          triggerType: 'email',
+          config: { inbox: 'support@company.com' }
+        }
+      },
+      {
+        id: '2',
+        type: 'action',
+        position: { x: 250, y: 200 },
+        data: {
+          label: 'ChatGPT',
+          actionType: 'chatgpt',
+          config: {
+            prompt: 'Analyze sentiment and categorize this support ticket',
+            model: 'gpt-4'
+          }
+        }
+      },
+      {
+        id: '3',
+        type: 'condition',
+        position: { x: 250, y: 350 },
+        data: {
+          label: 'If/Else',
+          conditionType: 'if-else',
+          config: {
+            condition: 'category',
+            operator: 'equals'
+          }
+        }
+      },
+      {
+        id: '4',
+        type: 'action',
+        position: { x: 50, y: 500 },
+        data: {
+          label: 'Slack',
+          actionType: 'slack',
+          config: { channel: '#support-technical', action: 'send' }
+        }
+      },
+      {
+        id: '5',
+        type: 'action',
+        position: { x: 250, y: 500 },
+        data: {
+          label: 'Slack',
+          actionType: 'slack',
+          config: { channel: '#support-billing', action: 'send' }
+        }
+      },
+      {
+        id: '6',
+        type: 'action',
+        position: { x: 450, y: 500 },
+        data: {
+          label: 'Slack',
+          actionType: 'slack',
+          config: { channel: '#support-general', action: 'send' }
+        }
+      }
+    ],
+    edges: [
+      { id: 'e1-2', source: '1', target: '2', animated: true, type: 'smoothstep' },
+      { id: 'e2-3', source: '2', target: '3', animated: true, type: 'smoothstep' },
+      { id: 'e3-4', source: '3', target: '4', animated: true, type: 'smoothstep' },
+      { id: 'e3-5', source: '3', target: '5', animated: true, type: 'smoothstep' },
+      { id: 'e3-6', source: '3', target: '6', animated: true, type: 'smoothstep' }
+    ]
   }
 ];
 
