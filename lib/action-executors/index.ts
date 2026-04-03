@@ -174,24 +174,72 @@ async function executeGmail(config: ActionConfig, contextData: Record<string, an
   const interpolatedSubject = subject ? interpolateVariables(subject, contextData) : 'No Subject';
   const interpolatedBody = emailBody ? interpolateVariables(emailBody, contextData) : '';
 
+  const accessToken = process.env.GMAIL_ACCESS_TOKEN;
+
+  if (!accessToken) {
+    console.warn('[Gmail] GMAIL_ACCESS_TOKEN not set, using mock response');
+    return {
+      success: true,
+      messageId: `mock-${Date.now()}`,
+      to,
+      subject: interpolatedSubject,
+      note: 'Set GMAIL_ACCESS_TOKEN in .env to use real Gmail API'
+    };
+  }
+
   console.log(`[Gmail] Sending email to ${to}...`);
 
-  // In production, call Gmail API
-  // For now, return mock response
-  const mockResponse = {
-    success: true,
-    messageId: `mock-${Date.now()}`,
-    to,
-    subject: interpolatedSubject,
-  };
+  try {
+    // Create email message (RFC 2822 format)
+    const message = [
+      `From: me`,
+      `To: ${to}`,
+      `Subject: ${interpolatedSubject}`,
+      `Content-Type: text/plain; charset=utf-8`,
+      ``,
+      interpolatedBody
+    ].join('\n');
 
-  console.log('[Gmail] Email sent');
-  return mockResponse;
+    // Encode message for Gmail API
+    const encodedMessage = Buffer.from(message)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    // Call Gmail API
+    const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ raw: encodedMessage }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Gmail API error: ${error.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    console.log('[Gmail] Email sent');
+    return {
+      success: true,
+      messageId: data.id,
+      threadId: data.threadId,
+      to,
+      subject: interpolatedSubject,
+    };
+  } catch (error) {
+    console.error('[Gmail] API call failed:', error);
+    throw error;
+  }
 }
 
 /**
  * Twitter/X Action
- * Post tweet via Twitter API
+ * Post tweet via Twitter API v2
  */
 async function executeTwitter(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
   const { action: twitterAction, content } = config;
@@ -201,20 +249,53 @@ async function executeTwitter(config: ActionConfig, contextData: Record<string, 
   }
 
   const interpolatedContent = interpolateVariables(content, contextData);
+  const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+
+  if (!bearerToken) {
+    console.warn('[Twitter] TWITTER_BEARER_TOKEN not set, using mock response');
+    return {
+      success: true,
+      tweetId: `mock-tweet-${Date.now()}`,
+      url: 'https://twitter.com/user/status/mock',
+      content: interpolatedContent,
+      note: 'Set TWITTER_BEARER_TOKEN in .env to use real Twitter API'
+    };
+  }
 
   console.log(`[Twitter] Posting: "${interpolatedContent.substring(0, 50)}..."`);
 
-  // In production, call Twitter API
-  // For now, return mock response
-  const mockResponse = {
-    success: true,
-    tweetId: `mock-tweet-${Date.now()}`,
-    url: 'https://twitter.com/user/status/mock',
-    content: interpolatedContent,
-  };
+  try {
+    // Call Twitter API v2
+    const response = await fetch('https://api.twitter.com/2/tweets', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${bearerToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: interpolatedContent,
+      }),
+    });
 
-  console.log('[Twitter] Tweet posted');
-  return mockResponse;
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Twitter API error: ${error.error?.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const tweetId = data.data.id;
+    
+    console.log('[Twitter] Tweet posted');
+    return {
+      success: true,
+      tweetId,
+      url: `https://twitter.com/user/status/${tweetId}`,
+      content: interpolatedContent,
+    };
+  } catch (error) {
+    console.error('[Twitter] API call failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -222,21 +303,91 @@ async function executeTwitter(config: ActionConfig, contextData: Record<string, 
  * Create/update page in Notion
  */
 async function executeNotion(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
-  const { action: notionAction, database, title, content } = config;
+  const { action: notionAction, database, title, content, parentId } = config;
+  const apiKey = process.env.NOTION_API_KEY;
+  const databaseId = process.env.NOTION_DATABASE_ID || database;
 
-  console.log(`[Notion] ${notionAction || 'Creating'} page in ${database || 'default'}...`);
+  if (!apiKey) {
+    console.warn('[Notion] NOTION_API_KEY not set, using mock response');
+    return {
+      success: true,
+      pageId: `mock-page-${Date.now()}`,
+      url: `https://notion.so/mock-page-${Date.now()}`,
+      action: notionAction || 'create',
+      note: 'Set NOTION_API_KEY in .env to use real Notion API'
+    };
+  }
 
-  // In production, call Notion API
-  // For now, return mock response
-  const mockResponse = {
-    success: true,
-    pageId: `mock-page-${Date.now()}`,
-    url: `https://notion.so/mock-page-${Date.now()}`,
-    action: notionAction || 'create',
-  };
+  const interpolatedTitle = title ? interpolateVariables(title, contextData) : 'Untitled';
+  const interpolatedContent = content ? interpolateVariables(content, contextData) : '';
 
-  console.log('[Notion] Page created/updated');
-  return mockResponse;
+  console.log(`[Notion] ${notionAction || 'Creating'} page: ${interpolatedTitle}...`);
+
+  try {
+    // Determine parent (database or page)
+    const parent = databaseId 
+      ? { database_id: databaseId }
+      : { page_id: parentId };
+
+    // Call Notion API
+    const response = await fetch('https://api.notion.com/v1/pages', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Notion-Version': '2022-06-28',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        parent,
+        properties: {
+          'Name': {
+            title: [
+              {
+                text: {
+                  content: interpolatedTitle,
+                },
+              },
+            ],
+          },
+        },
+        children: interpolatedContent ? [
+          {
+            object: 'block',
+            type: 'paragraph',
+            paragraph: {
+              rich_text: [
+                {
+                  text: {
+                    content: interpolatedContent,
+                  },
+                },
+              ],
+            },
+          },
+        ] : [],
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Notion API error: ${error.message || response.statusText}`);
+    }
+
+    const data = await response.json();
+    const pageId = data.id;
+    
+    console.log('[Notion] Page created');
+    return {
+      success: true,
+      pageId,
+      url: data.url,
+      action: notionAction || 'create',
+      title: interpolatedTitle,
+    };
+  } catch (error) {
+    console.error('[Notion] API call failed:', error);
+    throw error;
+  }
 }
 
 /**
@@ -245,26 +396,60 @@ async function executeNotion(config: ActionConfig, contextData: Record<string, a
  */
 async function executeSlack(config: ActionConfig, contextData: Record<string, any>): Promise<any> {
   const { channel, message, action: slackAction } = config;
+  const botToken = process.env.SLACK_BOT_TOKEN;
 
   if (!channel) {
     throw new Error('Slack action requires a channel');
+  }
+
+  if (!botToken) {
+    const interpolatedMessage = message ? interpolateVariables(message, contextData) : 'No message';
+    console.warn('[Slack] SLACK_BOT_TOKEN not set, using mock response');
+    return {
+      success: true,
+      ts: `${Date.now()}.mock`,
+      channel,
+      message: interpolatedMessage,
+      note: 'Set SLACK_BOT_TOKEN in .env to use real Slack API'
+    };
   }
 
   const interpolatedMessage = message ? interpolateVariables(message, contextData) : 'No message';
 
   console.log(`[Slack] Sending to #${channel}...`);
 
-  // In production, call Slack API
-  // For now, return mock response
-  const mockResponse = {
-    success: true,
-    ts: `${Date.now()}.mock`,
-    channel,
-    message: interpolatedMessage,
-  };
+  try {
+    // Call Slack API
+    const response = await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${botToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        channel,
+        text: interpolatedMessage,
+      }),
+    });
 
-  console.log('[Slack] Message sent');
-  return mockResponse;
+    const data = await response.json();
+
+    if (!data.ok) {
+      throw new Error(`Slack API error: ${data.error}`);
+    }
+
+    console.log('[Slack] Message sent');
+    return {
+      success: true,
+      ts: data.ts,
+      channel: data.channel,
+      message: interpolatedMessage,
+      url: `https://app.slack.com/client/${data.channel}/${data.ts}`,
+    };
+  } catch (error) {
+    console.error('[Slack] API call failed:', error);
+    throw error;
+  }
 }
 
 /**
