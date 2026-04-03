@@ -99,41 +99,64 @@ export class WorkflowExecutionEngine {
   }
 
   /**
-   * Execute a single node
+   * Execute a single node with retry logic
    */
   private async executeNode(node: WorkflowTemplate['nodes'][number]): Promise<NodeExecutionResult> {
     console.log(`[Executor] Executing node: ${node.data.label} (${node.type})`);
 
-    try {
-      let output: any;
+    const maxRetries = 3;
+    let lastError: Error | null = null;
 
-      switch (node.type) {
-        case 'trigger':
-          output = await this.executeTrigger(node);
-          break;
-        case 'action':
-          output = await this.executeAction(node);
-          break;
-        case 'condition':
-          output = await this.executeCondition(node);
-          break;
-        default:
-          throw new Error(`Unknown node type: ${node.type}`);
+    // Retry logic with exponential backoff
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        let output: any;
+
+        switch (node.type) {
+          case 'trigger':
+            output = await this.executeTrigger(node);
+            break;
+          case 'action':
+            output = await this.executeAction(node);
+            break;
+          case 'condition':
+            output = await this.executeCondition(node);
+            break;
+          default:
+            throw new Error(`Unknown node type: ${node.type}`);
+        }
+
+        // Success on attempt {attempt}
+        if (attempt > 1) {
+          console.log(`[Executor] Node succeeded on attempt ${attempt}/${maxRetries}`);
+        }
+
+        return {
+          nodeId: node.id,
+          success: true,
+          output,
+        };
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error('Execution failed');
+        console.error(`[Executor] Attempt ${attempt}/${maxRetries} failed:`, lastError.message);
+
+        // Wait before retry (exponential backoff: 1s, 2s, 4s)
+        if (attempt < maxRetries) {
+          const delayMs = Math.pow(2, attempt - 1) * 1000;
+          console.log(`[Executor] Retrying in ${delayMs}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
       }
-
-      return {
-        nodeId: node.id,
-        success: true,
-        output,
-      };
-    } catch (error) {
-      return {
-        nodeId: node.id,
-        success: false,
-        output: null,
-        error: error instanceof Error ? error.message : 'Execution failed',
-      };
     }
+
+    // All retries failed
+    console.error(`[Executor] Node failed after ${maxRetries} attempts`);
+    return {
+      nodeId: node.id,
+      success: false,
+      output: null,
+      error: lastError?.message || 'Execution failed after 3 attempts',
+    };
   }
 
   /**
