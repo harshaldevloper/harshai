@@ -129,7 +129,14 @@ export async function GET(
     const workflow = await prisma.workflow.findUnique({
       where: { id: workflowId },
       include: {
-        schedule: true
+        schedule: {
+          include: {
+            scheduledExecutions: {
+              take: 10,
+              orderBy: { startedAt: 'desc' }
+            }
+          }
+        }
       }
     });
 
@@ -157,6 +164,71 @@ export async function GET(
     console.error('Error getting schedule:', error);
     return NextResponse.json(
       { error: 'Failed to get schedule' },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT /api/workflows/[id]/schedule - Update/pause schedule
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { isEnabled, cronExpression } = await request.json();
+    const workflowId = params.id;
+
+    // Get workflow
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+      include: { schedule: true }
+    });
+
+    if (!workflow) {
+      return NextResponse.json(
+        { error: 'Workflow not found' },
+        { status: 404 }
+      );
+    }
+
+    if (!workflow.schedule) {
+      return NextResponse.json(
+        { error: 'No schedule found for this workflow' },
+        { status: 404 }
+      );
+    }
+
+    // Update schedule
+    const updatedSchedule = await prisma.schedule.update({
+      where: { workflowId },
+      data: {
+        isEnabled: isEnabled !== undefined ? isEnabled : workflow.schedule.isEnabled,
+        cronExpression: cronExpression || workflow.schedule.cronExpression,
+        nextRun: cronExpression ? getNextRun(cronExpression) : workflow.schedule.nextRun
+      }
+    });
+
+    // Update workflow
+    const updatedWorkflow = await prisma.workflow.update({
+      where: { id: workflowId },
+      data: {
+        scheduleEnabled: updatedSchedule.isEnabled,
+        cronExpression: updatedSchedule.cronExpression,
+        nextExecutedAt: updatedSchedule.nextRun,
+        triggerType: updatedSchedule.isEnabled ? 'cron' : 'manual'
+      }
+    });
+
+    return NextResponse.json({
+      success: true,
+      schedule: updatedSchedule,
+      workflow: updatedWorkflow
+    });
+
+  } catch (error) {
+    console.error('Error updating schedule:', error);
+    return NextResponse.json(
+      { error: 'Failed to update schedule' },
       { status: 500 }
     );
   }

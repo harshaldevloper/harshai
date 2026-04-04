@@ -1,0 +1,2 @@
+migration_lock.toml
+# This is a placeholder. Run `npx prisma migrate dev` to generate the actual lock file.
