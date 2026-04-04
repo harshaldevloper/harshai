@@ -1,0 +1,4 @@
+# Prisma Migrations
+# If you make manual changes to this file, make sure to update the migration hash accordingly.
+
+provider = "postgresql"

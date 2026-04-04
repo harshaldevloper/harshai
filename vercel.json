@@ -6,5 +6,10 @@
       "path": "/api/cron/execute",
       "schedule": "* * * * *"
     }
-  ]
+  ],
+  "env": {
+    "RESEND_API_KEY": "@resend-api-key",
+    "NOTIFICATION_FROM_EMAIL": "notifications@harshai.app",
+    "RESEND_WEBHOOK_SECRET": "@resend-webhook-secret"
+  }
 }

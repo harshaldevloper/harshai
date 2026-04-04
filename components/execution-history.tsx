@@ -33,6 +33,22 @@ interface ExecutionHistoryProps {
   userId?: string;
 }
 
+// Helper functions
+const formatDurationHelper = (ms?: number | null) => {
+  if (ms === null || ms === undefined) return '-';
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(2)}s`;
+};
+
+const formatDateTimeHelper = (dateStr: string) => {
+  return new Date(dateStr).toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 export default function ExecutionHistory({ workflowId, userId }: ExecutionHistoryProps) {
   const [executions, setExecutions] = useState<Execution[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
@@ -75,21 +91,6 @@ export default function ExecutionHistory({ workflowId, userId }: ExecutionHistor
     }
   };
 
-  const formatDuration = (ms?: number | null) => {
-    if (ms === null || ms === undefined) return '-';
-    if (ms < 1000) return `${ms}ms`;
-    return `${(ms / 1000).toFixed(2)}s`;
-  };
-
-  const formatDateTime = (dateStr: string) => {
-    return new Date(dateStr).toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'bg-green-100 text-green-800';
@@ -106,7 +107,7 @@ export default function ExecutionHistory({ workflowId, userId }: ExecutionHistor
       case 'failed': return '❌';
       case 'running': return '🔄';
       case 'pending': return '⏳';
-      default': return '•';
+      default: return '•';
     }
   };
 
@@ -186,10 +187,10 @@ export default function ExecutionHistory({ workflowId, userId }: ExecutionHistor
                     </span>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                    {formatDateTime(execution.startedAt)}
+                    {formatDateTimeHelper(execution.startedAt)}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                    {formatDuration(execution.duration)}
+                    {formatDurationHelper(execution.duration)}
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">
                     {execution.error ? (
@@ -285,11 +286,11 @@ function ExecutionDetailsModal({ execution, onClose }: { execution: Execution; o
               </div>
               <div>
                 <p className="text-sm text-gray-500">Started At</p>
-                <p className="font-medium">{formatDateTime(execution.startedAt)}</p>
+                <p className="font-medium">{formatDateTimeHelper(execution.startedAt)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Duration</p>
-                <p className="font-medium">{formatDuration(execution.duration)}</p>
+                <p className="font-medium">{formatDurationHelper(execution.duration)}</p>
               </div>
             </div>
 

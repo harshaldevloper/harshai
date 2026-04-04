@@ -141,7 +141,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      executions: executions.map(e => ({
+      executions: executions.map((e: any) => ({
         id: e.id,
         workflowId: e.workflowId,
         workflowName: e.workflow.name,

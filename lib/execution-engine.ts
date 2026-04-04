@@ -325,39 +325,120 @@ export class WorkflowExecutionEngine {
 }
 
 /**
- * Execute workflow helper function
+ * Execute workflow helper function with notification support
  */
 export async function executeWorkflow(
   workflowId: string,
   workflowName: string,
   nodes: WorkflowTemplate['nodes'],
   edges: WorkflowTemplate['edges'],
-  initialData: Record<string, any> = {}
+  initialData: Record<string, any> = {},
+  userId?: string
 ): Promise<ExecutionResult> {
   const engine = new WorkflowExecutionEngine(workflowId, workflowName, initialData);
-  const result = await engine.execute(nodes, edges);
+  const startTime = Date.now();
   
-  // Log to database if available
+  // Create execution record first
+  let executionId: string | undefined;
   if (process.env.DATABASE_URL) {
     try {
       const { PrismaClient } = await import('@prisma/client');
       const prisma = new PrismaClient();
       
       // Create execution record
-      await prisma.execution.create({
+      const execution = await prisma.execution.create({
         data: {
           workflowId: workflowId,
-          userId: 'demo-user', // TODO: Get from auth
-          status: result.success ? 'completed' : 'failed',
-          result: result.output,
-          error: result.error,
+          userId: userId || 'demo-user',
+          status: 'running',
+          startedAt: new Date(),
         },
       });
       
-      console.log('[ExecutionEngine] Logged to database');
+      executionId = execution.id;
+      console.log('[ExecutionEngine] Execution record created:', executionId);
+      
+      // Send start notification if enabled
+      if (userId && process.env.API_SECRET) {
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.API_SECRET}`
+            },
+            body: JSON.stringify({
+              executionId,
+              workflowId,
+              workflowName,
+              userId,
+              type: 'start'
+            })
+          });
+          console.log('[ExecutionEngine] Start notification sent');
+        } catch (notifError) {
+          console.error('[ExecutionEngine] Failed to send start notification:', notifError);
+        }
+      }
+      
       await prisma.$disconnect();
     } catch (error) {
-      console.error('[ExecutionEngine] Failed to log to database:', error);
+      console.error('[ExecutionEngine] Failed to create execution record:', error);
+      // Don't throw - continue with execution
+    }
+  }
+  
+  // Execute the workflow
+  const result = await engine.execute(nodes, edges);
+  
+  // Update execution record and send notification
+  if (process.env.DATABASE_URL && executionId) {
+    try {
+      const { PrismaClient } = await import('@prisma/client');
+      const prisma = new PrismaClient();
+      
+      // Update execution record
+      await prisma.execution.update({
+        where: { id: executionId },
+        data: {
+          status: result.success ? 'completed' : 'failed',
+          result: result.output,
+          error: result.error,
+          completedAt: new Date(),
+        },
+      });
+      
+      console.log('[ExecutionEngine] Execution record updated');
+      
+      // Send completion/failure notification
+      if (userId && process.env.API_SECRET) {
+        try {
+          await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/notifications/send`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.API_SECRET}`
+            },
+            body: JSON.stringify({
+              executionId,
+              workflowId,
+              workflowName,
+              userId,
+              type: result.success ? 'success' : 'failure',
+              executionTime: result.executionTime,
+              stepsExecuted: result.stepsExecuted,
+              errorMessage: result.error
+            })
+          });
+          console.log('[ExecutionEngine] Completion notification sent');
+        } catch (notifError) {
+          console.error('[ExecutionEngine] Failed to send completion notification:', notifError);
+        }
+      }
+      
+      await prisma.$disconnect();
+    } catch (error) {
+      console.error('[ExecutionEngine] Failed to update execution record:', error);
       // Don't throw - execution already completed
     }
   }

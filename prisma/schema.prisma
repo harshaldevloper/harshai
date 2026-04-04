@@ -10,15 +10,17 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  clerkId        String    @unique
-  email          String    @unique
-  name           String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  workflows      Workflow[]
-  executions     Execution[]
-  subscription   Subscription?
+  id                    String                 @id @default(cuid())
+  clerkId               String                 @unique
+  email                 String                 @unique
+  name                  String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  workflows             Workflow[]
+  executions            Execution[]
+  subscription          Subscription?
+  notificationPreferences NotificationPreference[]
+  notifications         Notification[]
 }
 
 model Workflow {
@@ -35,12 +37,15 @@ model Workflow {
   triggerType     String    @default("manual") // manual, webhook, cron
   cronExpression  String?   // e.g., "0 * * * *" for hourly
   scheduleEnabled Boolean   @default(false)
+  webhookEnabled  Boolean   @default(false)
+  webhookSecret   String?   @unique
   lastExecutedAt  DateTime?
   nextExecutedAt  DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   executions      Execution[]
   schedule        Schedule?
+  webhookLogs     WebhookLog[]
 }
 
 model Schedule {
@@ -101,4 +106,58 @@ model Integration {
   apiEndpoint String
   authType  String   // api_key, oauth2, none
   isActive  Boolean  @default(true)
+}
+
+// Day 29: Email Notification System
+model NotificationPreference {
+  id              String    @id @default(cuid())
+  userId          String
+  workflowId      String?   // null for global preferences
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workflow        Workflow? @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  emailEnabled    Boolean   @default(true)
+  smsEnabled      Boolean   @default(false)
+  notifyOnSuccess Boolean   @default(true)
+  notifyOnFailure Boolean   @default(true)
+  notifyOnStart   Boolean   @default(false)
+  emailAddress    String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@unique([userId, workflowId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  executionId String
+  type        String   // start, success, failure
+  status      String   @default("pending") // pending, sent, failed, delivered, bounced
+  error       String?
+  metadata    Json?    // Additional data (emailId, openCount, clickCount, etc.)
+  sentAt      DateTime @default(now())
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([executionId])
+  @@index([status])
+}
+
+// Day 31: Webhook Trigger System
+model WebhookLog {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  payload    Json
+  receivedAt DateTime @default(now())
+  status     String   // received, processing, completed, failed
+  response   Json?
+  ipAddress  String?
+  userAgent  String?
+  error      String?
+
+  @@index([workflowId])
+  @@index([receivedAt])
+  @@index([status])
 }

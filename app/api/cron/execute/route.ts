@@ -78,10 +78,12 @@ export async function POST(request: Request) {
           });
         }
 
-        // Execute the workflow
-        // Note: In production, this would call the actual execution engine
-        // For now, we'll simulate execution
-        const executionResult = await executeWorkflow(workflow);
+        // Execute the workflow and send notifications
+        const executionResult = await executeWorkflowWithNotifications(
+          workflow,
+          execution.id,
+          workflow.user.id
+        );
 
         // Update execution record
         await prisma.execution.update({
@@ -220,7 +222,7 @@ export async function GET() {
       currentTime: now.toISOString(),
       activeSchedules,
       dueWorkflows,
-      recentExecutions: recentExecutions.map(e => ({
+      recentExecutions: recentExecutions.map((e: any) => ({
         id: e.id,
         workflowName: e.schedule.workflow.name,
         status: e.status,
@@ -277,6 +279,111 @@ async function executeWorkflow(workflow: any) {
       success: false,
       output: null,
       error: error instanceof Error ? error.message : 'Unknown execution error'
+    };
+  }
+}
+
+/**
+ * Execute workflow with notification support
+ */
+async function executeWorkflowWithNotifications(
+  workflow: any,
+  executionId: string,
+  userId: string
+) {
+  const startTime = Date.now();
+  
+  try {
+    // Parse workflow nodes and edges
+    const nodes = typeof workflow.nodes === 'string' 
+      ? JSON.parse(workflow.nodes) 
+      : workflow.nodes;
+    
+    const edges = typeof workflow.edges === 'string'
+      ? JSON.parse(workflow.edges)
+      : workflow.edges;
+
+    console.log(`[Execute] Processing ${nodes?.length || 0} nodes`);
+
+    // Simulate workflow execution (replace with actual execution engine in production)
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    const executionTime = Date.now() - startTime;
+    const result = {
+      success: true,
+      output: {
+        status: 'completed',
+        nodesExecuted: nodes?.length || 0,
+        message: `Scheduled workflow "${workflow.name}" executed successfully`
+      },
+      error: null,
+      executionTime,
+      stepsExecuted: nodes?.length || 0
+    };
+
+    // Send success notification
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const apiSecret = process.env.CRON_SECRET || process.env.API_SECRET;
+      
+      await fetch(`${apiUrl}/api/notifications/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': apiSecret ? `Bearer ${apiSecret}` : ''
+        },
+        body: JSON.stringify({
+          executionId,
+          workflowId: workflow.id,
+          workflowName: workflow.name,
+          userId,
+          type: 'success',
+          executionTime: result.executionTime,
+          stepsExecuted: result.stepsExecuted
+        })
+      });
+      console.log(`[Notifications] Success notification sent for workflow ${workflow.name}`);
+    } catch (notifError) {
+      console.error('[Notifications] Failed to send success notification:', notifError);
+    }
+
+    return result;
+
+  } catch (error) {
+    const executionTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown execution error';
+    
+    // Send failure notification
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const apiSecret = process.env.CRON_SECRET || process.env.API_SECRET;
+      
+      await fetch(`${apiUrl}/api/notifications/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': apiSecret ? `Bearer ${apiSecret}` : ''
+        },
+        body: JSON.stringify({
+          executionId,
+          workflowId: workflow.id,
+          workflowName: workflow.name,
+          userId,
+          type: 'failure',
+          errorMessage,
+          executionTime
+        })
+      });
+      console.log(`[Notifications] Failure notification sent for workflow ${workflow.name}`);
+    } catch (notifError) {
+      console.error('[Notifications] Failed to send failure notification:', notifError);
+    }
+
+    return {
+      success: false,
+      output: null,
+      error: errorMessage,
+      executionTime
     };
   }
 }

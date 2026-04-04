@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     });
     
     // Calculate duration for each execution
-    const executionsWithDuration = executions.map(exec => {
+    const executionsWithDuration = executions.map((exec: any) => {
       const duration = exec.completedAt && exec.startedAt
         ? exec.completedAt.getTime() - exec.startedAt.getTime()
         : null;

@@ -85,7 +85,7 @@ export default function ScheduleSettings({
 
       setCronExpression('0 0 * * *');
       setScheduleEnabled(false);
-      setNextRun(null);
+      setNextRun(undefined);
       alert('Schedule removed successfully!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
