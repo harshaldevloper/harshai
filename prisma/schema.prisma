@@ -22,19 +22,37 @@ model User {
 }
 
 model Workflow {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  name        String
-  description String?
-  nodes       Json     // React Flow nodes
-  edges       Json     // React Flow edges
-  version     Int      @default(1)
-  isActive    Boolean  @default(true)
-  runs        Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  executions  Execution[]
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  name            String
+  description     String?
+  nodes           Json      // React Flow nodes
+  edges           Json      // React Flow edges
+  version         Int       @default(1)
+  isActive        Boolean   @default(true)
+  runs            Int       @default(0)
+  triggerType     String    @default("manual") // manual, webhook, cron
+  cronExpression  String?   // e.g., "0 * * * *" for hourly
+  scheduleEnabled Boolean   @default(false)
+  lastExecutedAt  DateTime?
+  nextExecutedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  executions      Execution[]
+  schedule        Schedule?
+}
+
+model Schedule {
+  id             String   @id @default(cuid())
+  workflowId     String   @unique
+  workflow       Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  cronExpression String
+  isEnabled      Boolean  @default(true)
+  lastRun        DateTime?
+  nextRun        DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model Execution {
