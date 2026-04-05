@@ -119,7 +119,7 @@ We'll send you another email when the workflow completes.
     });
 
     console.log(`[EmailService] Workflow started email sent to ${to}`, result);
-    return { success: true, id: result.id };
+    return { success: true, id: (result as any).id };
   } catch (error) {
     console.error('[EmailService] Failed to send workflow started email:', error);
     return { 
@@ -237,7 +237,7 @@ ${data.stepsExecuted ? `- Steps Executed: ${data.stepsExecuted}` : ''}
     });
 
     console.log(`[EmailService] Workflow completed email sent to ${to}`, result);
-    return { success: true, id: result.id };
+    return { success: true, id: (result as any).id };
   } catch (error) {
     console.error('[EmailService] Failed to send workflow completed email:', error);
     return { 
@@ -360,7 +360,7 @@ ${troubleshootingTips.map(tip => `- ${tip}`).join('\n')}
     });
 
     console.log(`[EmailService] Workflow failed email sent to ${to}`, result);
-    return { success: true, id: result.id };
+    return { success: true, id: (result as any).id };
   } catch (error) {
     console.error('[EmailService] Failed to send workflow failed email:', error);
     return { 
@@ -394,7 +394,7 @@ export async function sendEmail(
     });
 
     console.log(`[EmailService] Email sent to ${to}`, result);
-    return { success: true, id: result.id };
+    return { success: true, id: (result as any).id };
   } catch (error) {
     console.error('[EmailService] Failed to send email:', error);
     return { 

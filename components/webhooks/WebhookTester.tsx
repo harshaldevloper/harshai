@@ -121,10 +121,12 @@ export function WebhookTester({ workflowId, webhookUrl }: WebhookTesterProps) {
       } else {
         setError(data.error || 'Test failed');
       }
-    } catch (parseError) {
-      setError('Invalid JSON payload. Please check your syntax.');
-    } catch (fetchError) {
-      setError('Failed to send test request. Please try again.');
+    } catch (testError) {
+      if (testError instanceof SyntaxError) {
+        setError('Invalid JSON payload. Please check your syntax.');
+      } else {
+        setError('Failed to send test request. Please try again.');
+      }
     } finally {
       setTesting(false);
     }

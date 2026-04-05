@@ -154,13 +154,13 @@ export async function logWebhook(
       payload,
       status,
       response,
-      ipAddress,
-      userAgent,
-      error,
+      ipAddress: ipAddress ?? undefined,
+      userAgent: userAgent ?? undefined,
+      error: error ?? undefined,
     },
   });
   
-  return log;
+  return log as any;
 }
 
 /**
@@ -178,7 +178,14 @@ export async function getWebhookLogs(
     skip: offset,
   });
   
-  return logs;
+  // Convert null to undefined for compatibility
+  return logs.map((log: any) => ({
+    ...log,
+    ipAddress: log.ipAddress ?? undefined,
+    userAgent: log.userAgent ?? undefined,
+    error: log.error ?? undefined,
+    response: log.response ?? undefined,
+  }));
 }
 
 /**
@@ -341,8 +348,8 @@ export async function processWebhook(
     const result = await executeWorkflow(
       workflowId,
       workflowName,
-      workflowNodes,
-      workflowEdges,
+      workflowNodes as any,
+      workflowEdges as any,
       payload // Pass webhook payload as initial data
     );
     

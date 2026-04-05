@@ -90,8 +90,8 @@ export async function POST(request: Request) {
           where: { id: execution.id },
           data: {
             status: executionResult.success ? 'completed' : 'failed',
-            result: executionResult.output,
-            error: executionResult.error,
+            result: executionResult.output ?? undefined,
+            error: executionResult.error ?? undefined,
             completedAt: new Date()
           }
         });
@@ -125,8 +125,8 @@ export async function POST(request: Request) {
             },
             data: {
               status: executionResult.success ? 'completed' : 'failed',
-              result: executionResult.output,
-              error: executionResult.error,
+              result: executionResult.output ?? undefined,
+              error: executionResult.error ?? undefined,
               completedAt: new Date()
             }
           });

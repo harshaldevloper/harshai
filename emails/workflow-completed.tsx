@@ -15,9 +15,6 @@ import {
   Hr,
   Link,
   Button,
-  Table,
-  TableCell,
-  TableRow,
 } from '@react-email/components';
 
 interface WorkflowCompletedEmailProps {
@@ -64,30 +61,20 @@ export const WorkflowCompletedEmail = ({
           <Section style={successBox}>
             <Heading style={h2}>Execution Summary</Heading>
             
-            <Table style={table}>
-              {executionTime && (
-                <TableRow>
-                  <TableCell style={tableLabel}>Execution Time:</TableCell>
-                  <TableCell style={tableValue}>{(executionTime / 1000).toFixed(2)}s</TableCell>
-                </TableRow>
-              )}
-              {stepsExecuted && (
-                <TableRow>
-                  <TableCell style={tableLabel}>Steps Executed:</TableCell>
-                  <TableCell style={tableValue}>{stepsExecuted}</TableCell>
-                </TableRow>
-              )}
-              <TableRow>
-                <TableCell style={tableLabel}>Workflow ID:</TableCell>
-                <TableCell style={tableValue}>{workflowId}</TableCell>
-              </TableRow>
-              <TableRow>
-                <TableCell style={tableLabel}>Completed at:</TableCell>
-                <TableCell style={tableValue}>
-                  {new Date(completedAt).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })} IST
-                </TableCell>
-              </TableRow>
-            </Table>
+            <Text style={paragraph}>
+              <strong>Execution Time:</strong> {executionTime ? (executionTime / 1000).toFixed(2) + 's' : '-'}
+            </Text>
+            {stepsExecuted && (
+              <Text style={paragraph}>
+                <strong>Steps Executed:</strong> {stepsExecuted}
+              </Text>
+            )}
+            <Text style={paragraph}>
+              <strong>Workflow ID:</strong> {workflowId}
+            </Text>
+            <Text style={paragraph}>
+              <strong>Completed at:</strong> {new Date(completedAt).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })} IST
+            </Text>
           </Section>
           
           <Hr style={hr} />
@@ -160,23 +147,11 @@ const successBox = {
   borderRadius: '8px',
 };
 
-const table = {
-  width: '100%',
-  borderCollapse: 'collapse' as const,
-};
-
-const tableLabel = {
-  padding: '8px 0',
+const paragraph = {
   fontSize: '14px',
+  lineHeight: '24px',
   color: '#374151',
-  fontWeight: '600',
-};
-
-const tableValue = {
-  padding: '8px 0',
-  fontSize: '14px',
-  color: '#374151',
-  textAlign: 'right' as const,
+  margin: '0 0 8px 0',
 };
 
 const hr = {

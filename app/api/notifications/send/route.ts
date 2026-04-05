@@ -116,11 +116,14 @@ export async function POST(request: NextRequest) {
       } as any;
     }
 
+    // Type assertion - preferences is guaranteed to exist after fallback
+    const prefs = preferences as any;
+
     // Check if email is enabled for this notification type
     const shouldNotify = {
-      start: preferences.notifyOnStart && preferences.emailEnabled,
-      success: preferences.notifyOnSuccess && preferences.emailEnabled,
-      failure: preferences.notifyOnFailure && preferences.emailEnabled
+      start: prefs.notifyOnStart && prefs.emailEnabled,
+      success: prefs.notifyOnSuccess && prefs.emailEnabled,
+      failure: prefs.notifyOnFailure && prefs.emailEnabled
     };
 
     if (!shouldNotify[type]) {
@@ -136,7 +139,7 @@ export async function POST(request: NextRequest) {
     let result;
     switch (type) {
       case 'start':
-        result = await sendWorkflowStartedEmail(preferences.emailAddress, {
+        result = await sendWorkflowStartedEmail(prefs.emailAddress, {
           workflowName,
           workflowId,
           userName: user.name || undefined,
@@ -144,7 +147,7 @@ export async function POST(request: NextRequest) {
         });
         break;
       case 'success':
-        result = await sendWorkflowCompletedEmail(preferences.emailAddress, {
+        result = await sendWorkflowCompletedEmail(prefs.emailAddress, {
           workflowName,
           workflowId,
           userName: user.name || undefined,
@@ -155,7 +158,7 @@ export async function POST(request: NextRequest) {
         });
         break;
       case 'failure':
-        result = await sendWorkflowFailedEmail(preferences.emailAddress, {
+        result = await sendWorkflowFailedEmail(prefs.emailAddress, {
           workflowName,
           workflowId,
           userName: user.name || undefined,
@@ -188,12 +191,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (result.success) {
-      console.log(`[Notifications] Email sent successfully to ${preferences.emailAddress}`);
+      console.log(`[Notifications] Email sent successfully to ${prefs.emailAddress}`);
       return NextResponse.json({
         success: true,
         emailSent: true,
         emailId: result.id,
-        recipient: preferences.emailAddress
+        recipient: prefs.emailAddress
       });
     } else {
       console.error(`[Notifications] Failed to send email: ${result.error}`);

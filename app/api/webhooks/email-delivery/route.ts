@@ -141,7 +141,7 @@ export async function GET() {
       where: {
         metadata: {
           path: ['emailId'],
-          not: null
+          not: { equals: null }
         }
       }
     });
@@ -154,7 +154,7 @@ export async function GET() {
         type: n.type,
         status: n.status,
         sentAt: n.sentAt,
-        metadata: n.metadata
+        metadata: n.metadata ?? undefined
       }))
     });
 
