@@ -24,28 +24,29 @@ model User {
 }
 
 model Workflow {
-  id              String    @id @default(cuid())
-  userId          String
-  user            User      @relation(fields: [userId], references: [id])
-  name            String
-  description     String?
-  nodes           Json      // React Flow nodes
-  edges           Json      // React Flow edges
-  version         Int       @default(1)
-  isActive        Boolean   @default(true)
-  runs            Int       @default(0)
-  triggerType     String    @default("manual") // manual, webhook, cron
-  cronExpression  String?   // e.g., "0 * * * *" for hourly
-  scheduleEnabled Boolean   @default(false)
-  webhookEnabled  Boolean   @default(false)
-  webhookSecret   String?   @unique
-  lastExecutedAt  DateTime?
-  nextExecutedAt  DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  executions      Execution[]
-  schedule        Schedule?
-  webhookLogs     WebhookLog[]
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id])
+  name                  String
+  description           String?
+  nodes                 Json      // React Flow nodes
+  edges                 Json      // React Flow edges
+  version               Int       @default(1)
+  isActive              Boolean   @default(true)
+  runs                  Int       @default(0)
+  triggerType           String    @default("manual") // manual, webhook, cron
+  cronExpression        String?   // e.g., "0 * * * *" for hourly
+  scheduleEnabled       Boolean   @default(false)
+  webhookEnabled        Boolean   @default(false)
+  webhookSecret         String?   @unique
+  lastExecutedAt        DateTime?
+  nextExecutedAt        DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  executions            Execution[]
+  schedule              Schedule?
+  webhookLogs           WebhookLog[]
+  notificationPreferences NotificationPreference[]
 }
 
 model Schedule {
