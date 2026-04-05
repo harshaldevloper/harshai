@@ -1,6 +1,4 @@
 {
-  "buildCommand": "npx prisma generate && npx next build",
-  "installCommand": "npm install",
   "env": {
     "RESEND_API_KEY": "re_fpcNd6Ak_EBow8defZSWx8rGW173qkUZj",
     "NOTIFICATION_FROM_EMAIL": "notifications@harshai.app",
