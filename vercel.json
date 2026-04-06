@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && NODE_OPTIONS=\"--max-old-space-size=4096\" npx next build",
+  "buildCommand": "npx prisma generate && npx prisma migrate deploy && NODE_OPTIONS=\"--max-old-space-size=4096\" npx next build",
   "env": {
     "RESEND_API_KEY": "re_fpcNd6Ak_EBow8defZSWx8rGW173qkUZj",
     "NOTIFICATION_FROM_EMAIL": "notifications@harshai.app",
