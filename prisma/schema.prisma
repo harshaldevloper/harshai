@@ -95,6 +95,8 @@ model Execution {
   workflow        Workflow @relation(fields: [workflowId], references: [id])
   userId          String
   user            User     @relation(fields: [userId], references: [id])
+  versionNumber   Int?
+  workflowVersion WorkflowVersion? @relation(fields: [workflowId, versionNumber], references: [workflowId, versionNumber])
   status          String   // pending, running, completed, failed
   result          Json?
   error           String?
@@ -304,6 +306,31 @@ model ExecutionLog {
   @@index([executionId])
   @@index([workflowId])
   @@index([level])
+  @@index([createdAt])
+}
+
+// Day 39: Workflow Versioning
+model WorkflowVersion {
+  id            String   @id @default(cuid())
+  workflowId    String
+  workflow      Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  versionNumber Int
+  nodes         Json
+  edges         Json
+  config        Json?
+  changeSummary String?
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  isCurrent     Boolean  @default(false)
+  parentVersionId String?
+  parentVersion WorkflowVersion? @relation("VersionHistory", fields: [parentVersionId], references: [id])
+  childVersions WorkflowVersion[] @relation("VersionHistory")
+  createdAt     DateTime @default(now())
+  executions    Execution[]
+
+  @@unique([workflowId, versionNumber])
+  @@index([workflowId])
+  @@index([isCurrent])
   @@index([createdAt])
 }
 
