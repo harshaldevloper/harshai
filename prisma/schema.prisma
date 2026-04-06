@@ -199,3 +199,21 @@ model WebhookDelivery {
   @@index([status])
   @@index([createdAt])
 }
+
+// Day 35: Webhook Filters
+model WebhookFilter {
+  id         String   @id @default(cuid())
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  filterType String   // event, jsonpath, regex, conditional
+  field      String   // JSON path or field name
+  operator   String   // equals, contains, matches, gt, lt, etc.
+  value      Json
+  enabled    Boolean  @default(true)
+  priority   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([workflowId])
+  @@index([enabled])
+}
