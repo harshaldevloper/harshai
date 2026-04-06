@@ -39,6 +39,11 @@ model Workflow {
   scheduleEnabled       Boolean   @default(false)
   webhookEnabled        Boolean   @default(false)
   webhookSecret         String?   @unique
+  webhookSignatureEnabled Boolean @default(false)
+  webhookSigningSecret  String?
+  signatureAlgorithm    String?   @default("sha256") // sha256, sha512
+  signatureHeader       String?   @default("X-Signature-256")
+  timestampTolerance    Int       @default(300) // seconds
   lastExecutedAt        DateTime?
   nextExecutedAt        DateTime?
   createdAt             DateTime  @default(now())
