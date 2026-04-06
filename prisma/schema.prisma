@@ -217,3 +217,62 @@ model WebhookFilter {
   @@index([workflowId])
   @@index([enabled])
 }
+
+// Day 36: Template Marketplace
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String   // social-media, email, content, ecommerce, support, data, marketing, productivity
+  difficulty  String   // beginner, intermediate, advanced
+  visibility  String   @default("private") // private, public, unlisted
+  thumbnail   String?
+  tags        String[]
+  nodes       Json     // React Flow nodes
+  edges       Json     // React Flow edges
+  variables   Json?    // Template variables for customization
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+  workflowId  String?  // Original workflow (if saved from workflow)
+  workflow    Workflow? @relation(fields: [workflowId], references: [id])
+  imports     Int      @default(0)
+  rating      Float    @default(0)
+  ratingCount Int      @default(0)
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  variables_  TemplateVariable[]
+  favorites   TemplateFavorite[]
+
+  @@index([category])
+  @@index([visibility])
+  @@index([authorId])
+  @@index([tags])
+  @@index([featured])
+}
+
+model TemplateVariable {
+  id         String   @id @default(cuid())
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  name       String
+  label      String
+  type       String   // text, number, select, integration, webhook
+  required   Boolean  @default(false)
+  defaultValue String?
+  options    Json?    // For select type
+  createdAt  DateTime @default(now())
+
+  @@unique([templateId, name])
+}
+
+model TemplateFavorite {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateId String
+  template   Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, templateId])
+}
