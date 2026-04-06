@@ -48,6 +48,11 @@ model Workflow {
   webhookMaxRetries     Int       @default(6)
   webhookRetryStrategy  String    @default("exponential") // exponential, linear, fixed
   webhookRetryBaseDelay Int       @default(60) // seconds
+  // Day 38: Error Handling
+  errorHandlerEnabled   Boolean   @default(false)
+  errorHandlerActions   String[]  @default([]) // log, notify, retry, fallback
+  errorHandlerRetryCount Int      @default(0)
+  errorHandlerFallbackWorkflowId String?
   lastExecutedAt        DateTime?
   nextExecutedAt        DateTime?
   createdAt             DateTime  @default(now())
@@ -57,6 +62,7 @@ model Workflow {
   webhookLogs           WebhookLog[]
   webhookDeliveries     WebhookDelivery[]
   notificationPreferences NotificationPreference[]
+  breakpoints           Breakpoint[]
 }
 
 model Schedule {
@@ -84,16 +90,20 @@ model ScheduledExecution {
 }
 
 model Execution {
-  id         String   @id @default(cuid())
-  workflowId String
-  workflow   Workflow @relation(fields: [workflowId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  status     String   // pending, running, completed, failed
-  result     Json?
-  error      String?
-  startedAt  DateTime @default(now())
-  completedAt DateTime?
+  id              String   @id @default(cuid())
+  workflowId      String
+  workflow        Workflow @relation(fields: [workflowId], references: [id])
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  status          String   // pending, running, completed, failed
+  result          Json?
+  error           String?
+  branchPath      String[]
+  loopIterations  Int      @default(0)
+  parallelBranches Json?
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  logs            ExecutionLog[]
 }
 
 model Subscription {
@@ -276,3 +286,37 @@ model TemplateFavorite {
 
   @@unique([userId, templateId])
 }
+
+// Day 38: Error Handling & Logging
+model ExecutionLog {
+  id          String   @id @default(cuid())
+  executionId String
+  execution   Execution @relation(fields: [executionId], references: [id], onDelete: Cascade)
+  workflowId  String
+  nodeId      String?
+  level       String   // debug, info, warn, error
+  message     String
+  data        Json?
+  error       String?
+  duration    Int?     // milliseconds
+  createdAt   DateTime @default(now())
+
+  @@index([executionId])
+  @@index([workflowId])
+  @@index([level])
+  @@index([createdAt])
+}
+
+model Breakpoint {
+  id         String   @id @default(cuid())
+  workflowId String
+  nodeId     String
+  condition  String?
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  @@unique([workflowId, nodeId])
+}
+
+// Error Handler fields added to Workflow model
+// errorHandlerEnabled, errorHandlerActions, errorHandlerRetryCount, errorHandlerFallbackWorkflowId
