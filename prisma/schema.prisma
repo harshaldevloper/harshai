@@ -44,6 +44,10 @@ model Workflow {
   signatureAlgorithm    String?   @default("sha256") // sha256, sha512
   signatureHeader       String?   @default("X-Signature-256")
   timestampTolerance    Int       @default(300) // seconds
+  webhookRetryEnabled   Boolean   @default(true)
+  webhookMaxRetries     Int       @default(6)
+  webhookRetryStrategy  String    @default("exponential") // exponential, linear, fixed
+  webhookRetryBaseDelay Int       @default(60) // seconds
   lastExecutedAt        DateTime?
   nextExecutedAt        DateTime?
   createdAt             DateTime  @default(now())
@@ -51,6 +55,7 @@ model Workflow {
   executions            Execution[]
   schedule              Schedule?
   webhookLogs           WebhookLog[]
+  webhookDeliveries     WebhookDelivery[]
   notificationPreferences NotificationPreference[]
 }
 
@@ -152,18 +157,45 @@ model Notification {
 
 // Day 31: Webhook Trigger System
 model WebhookLog {
-  id         String   @id @default(cuid())
-  workflowId String
-  workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  payload    Json
-  receivedAt DateTime @default(now())
-  status     String   // received, processing, completed, failed
-  response   Json?
-  ipAddress  String?
-  userAgent  String?
-  error      String?
+  id              String   @id @default(cuid())
+  workflowId      String
+  workflow        Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  payload         Json
+  receivedAt      DateTime @default(now())
+  status          String   // received, processing, completed, failed
+  response        Json?
+  ipAddress       String?
+  userAgent       String?
+  error           String?
+  // Day 33: Retry Logic
+  retryCount      Int      @default(0)
+  maxRetries      Int      @default(6)
+  nextRetryAt     DateTime?
+  retryStrategy   String?  @default("exponential")
+  deliveries      WebhookDelivery[]
 
   @@index([workflowId])
   @@index([receivedAt])
   @@index([status])
+  @@index([nextRetryAt])
+}
+
+// Day 33: Webhook Delivery Tracking
+model WebhookDelivery {
+  id            String     @id @default(cuid())
+  webhookLogId  String
+  webhookLog    WebhookLog @relation(fields: [webhookLogId], references: [id], onDelete: Cascade)
+  attemptNumber Int        @default(1)
+  status        String     // pending, sending, delivered, failed
+  httpStatus    Int?
+  responseTime  Int?       // milliseconds
+  requestBody   Json?
+  responseBody  Json?
+  errorMessage  String?
+  deliveredAt   DateTime?
+  createdAt     DateTime   @default(now())
+
+  @@index([webhookLogId])
+  @@index([status])
+  @@index([createdAt])
 }
