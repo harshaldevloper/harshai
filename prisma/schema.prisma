@@ -118,8 +118,14 @@ model Subscription {
   runsLimit    Int      @default(100)
   runsUsed     Int      @default(0)
   resetDate    DateTime
+  // Day 40: Rate Limiting
+  rateLimitPerMinute Int @default(10)
+  rateLimitPerHour   Int @default(100)
+  rateLimitPerDay    Int @default(1000)
+  concurrentLimit    Int @default(5)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  usageLogs    UsageLog[]
 }
 
 model Integration {
@@ -343,6 +349,37 @@ model Breakpoint {
   createdAt  DateTime @default(now())
 
   @@unique([workflowId, nodeId])
+}
+
+// Day 40: Rate Limiting & Quotas
+model UsageLog {
+  id            String   @id @default(cuid())
+  subscriptionId String
+  subscription  Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  workflowId    String
+  executionId   String
+  timestamp     DateTime @default(now())
+  duration      Int      // milliseconds
+  success       Boolean  @default(true)
+
+  @@index([subscriptionId])
+  @@index([timestamp])
+  @@index([workflowId])
+}
+
+model RateLimitLog {
+  id          String   @id @default(cuid())
+  userId      String
+  workflowId  String
+  action      String   // execution, api_call, webhook
+  timestamp   DateTime @default(now())
+  allowed     Boolean
+  limit       Int
+  remaining   Int
+  resetAt     DateTime
+
+  @@index([userId, timestamp])
+  @@index([workflowId, timestamp])
 }
 
 // Error Handler fields added to Workflow model
