@@ -265,6 +265,147 @@ fetch(webhookUrl, {
 
 ---
 
+## HMAC Signature Verification (Enterprise Security)
+
+For enhanced security, enable HMAC signature verification to ensure webhook payloads haven't been tampered with and truly originate from the expected sender.
+
+### How It Works
+
+1. **Enable HMAC** in your workflow's webhook settings
+2. **Copy the signing secret** (shown only once!)
+3. **Configure your webhook sender** (Stripe, GitHub, etc.) with the secret
+4. **All requests** must include a valid HMAC signature header
+
+### Supported Formats
+
+| Service | Header Name | Format | Timestamp |
+|---------|-------------|--------|-----------|
+| Stripe | `Stripe-Signature` | `t=timestamp,v1=signature` | Included |
+| GitHub | `X-Hub-Signature-256` | `sha256=hex` | Separate header |
+| Slack | `X-Slack-Signature` | `v0=hex` | Separate header |
+| Custom | Configurable | Hex or Base64 | Optional |
+
+### Example: Stripe Integration
+
+**1. Enable HMAC in HarshAI:**
+- Go to workflow webhook settings
+- Enable "HMAC Signature Verification"
+- Select algorithm: SHA-256
+- Set header: `Stripe-Signature`
+- Copy the signing secret (e.g., `whsec_abc123...`)
+
+**2. Configure Stripe:**
+- Stripe Dashboard → Developers → Webhooks
+- Add endpoint: `https://ai-workflow-automator.vercel.app/api/webhooks/[id]/[secret]`
+- Select events (e.g., `payment_intent.succeeded`)
+- Paste the signing secret
+
+**3. Stripe automatically sends:**
+```
+Stripe-Signature: t=1678901234,v1=abc123def456...
+```
+
+**4. HarshAI verifies:**
+- Extracts timestamp and signature from header
+- Computes expected signature: `HMAC-SHA256(secret, "timestamp.payload")`
+- Compares signatures (constant-time comparison)
+- Rejects if timestamp is too old (prevents replay attacks)
+- Processes webhook if valid
+
+### Example: GitHub Integration
+
+**1. Enable HMAC in HarshAI:**
+- Algorithm: SHA-256
+- Header: `X-Hub-Signature-256`
+- Copy signing secret
+
+**2. Configure GitHub:**
+- Repository Settings → Webhooks → Add webhook
+- Payload URL: Your HarshAI webhook URL
+- Content type: `application/json`
+- Secret: Your signing secret
+- Select events (e.g., Issues, Pull Requests)
+
+**3. GitHub sends:**
+```
+X-Hub-Signature-256: sha256=abc123...
+X-Hub-Signature-Timestamp: 1678901234
+```
+
+### Example: Custom Integration (Node.js)
+
+```javascript
+const crypto = require('crypto');
+
+const secret = 'whsec_your_signing_secret';
+const payload = JSON.stringify({ event: 'custom.event', data: { id: 123 } });
+const timestamp = Math.floor(Date.now() / 1000);
+
+// Create signature
+const signedPayload = `${timestamp}.${payload}`;
+const signature = crypto
+  .createHmac('sha256', secret)
+  .update(signedPayload)
+  .digest('hex');
+
+// Send webhook
+fetch('https://ai-workflow-automator.vercel.app/api/webhooks/[id]/[secret]', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Signature-256': signature,
+    'X-Timestamp': timestamp.toString(),
+  },
+  body: payload,
+});
+```
+
+### Example: Python
+
+```python
+import hmac
+import hashlib
+import time
+import requests
+import json
+
+secret = 'whsec_your_signing_secret'
+payload = json.dumps({'event': 'custom.event', 'data': {'id': 123}})
+timestamp = str(int(time.time()))
+
+# Create signature
+signed_payload = f"{timestamp}.{payload}"
+signature = hmac.new(
+    secret.encode('utf-8'),
+    signed_payload.encode('utf-8'),
+    hashlib.sha256
+).hexdigest()
+
+# Send webhook
+headers = {
+    'Content-Type': 'application/json',
+    'X-Signature-256': signature,
+    'X-Timestamp': timestamp,
+}
+
+response = requests.post(
+    'https://ai-workflow-automator.vercel.app/api/webhooks/[id]/[secret]',
+    headers=headers,
+    data=payload
+)
+
+print(response.json())
+```
+
+### Security Benefits
+
+- **Payload Integrity:** Verifies payload wasn't modified in transit
+- **Authentication:** Confirms sender knows the secret
+- **Replay Attack Prevention:** Timestamp verification (±5 minutes by default)
+- **Industry Standard:** Used by Stripe, GitHub, Slack, Twilio, etc.
+
+---
+
 ## Security Features
 
 ### Secret Token

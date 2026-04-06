@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { processWebhook, parseWebhookPayload } from '@/lib/webhook-handler';
+import { processWebhook, processWebhookWithSignature, parseWebhookPayload } from '@/lib/webhook-handler';
 
 /**
  * POST /api/webhooks/[workflowId]/[secretToken]
@@ -28,10 +28,24 @@ export async function POST(
     // Get content type
     const contentType = request.headers.get('content-type') || 'application/json';
     
+    // Get raw body for HMAC verification
+    const rawBody = await request.text();
+    
     // Parse payload
     let payload;
     try {
-      payload = await parseWebhookPayload(request, contentType);
+      // Re-parse from raw body
+      if (contentType.includes('application/json')) {
+        payload = JSON.parse(rawBody);
+      } else {
+        // For non-JSON, use the original parsing logic
+        const clonedRequest = new Request(request.url, {
+          method: request.method,
+          headers: request.headers,
+          body: rawBody,
+        });
+        payload = await parseWebhookPayload(clonedRequest, contentType);
+      }
     } catch (parseError) {
       console.error('[Webhook] Payload parsing failed:', parseError);
       return NextResponse.json(
@@ -47,11 +61,13 @@ export async function POST(
     console.log(`[Webhook] IP: ${ipAddress}, UA: ${userAgent}`);
     console.log(`[Webhook] Payload:`, JSON.stringify(payload, null, 2).slice(0, 1000));
     
-    // Process webhook
-    const result = await processWebhook(
+    // Process webhook with HMAC signature support
+    const result = await processWebhookWithSignature(
       workflowId,
       secretToken,
       payload,
+      rawBody,
+      request.headers,
       ipAddress,
       userAgent
     );

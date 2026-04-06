@@ -261,7 +261,186 @@ export async function toggleWebhookEnabled(
 }
 
 /**
- * Process incoming webhook
+ * Process incoming webhook with HMAC signature verification support
+ */
+export async function processWebhookWithSignature(
+  workflowId: string,
+  secretToken: string,
+  payload: any,
+  rawBody: string,
+  headers: Headers,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<WebhookResult> {
+  try {
+    // Verify workflow exists and webhook is enabled
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+      include: { user: true },
+    });
+    
+    if (!workflow) {
+      await logWebhook(workflowId, payload, 'failed', undefined, ipAddress, userAgent, 'Workflow not found');
+      return { success: false, error: 'Workflow not found' };
+    }
+    
+    if (!workflow.webhookEnabled) {
+      await logWebhook(workflowId, payload, 'failed', undefined, ipAddress, userAgent, 'Webhook not enabled');
+      return { success: false, error: 'Webhook not enabled for this workflow' };
+    }
+    
+    // Verify secret token (URL-based authentication)
+    if (!workflow.webhookSecret || !validateWebhookSecret(secretToken, workflow.webhookSecret)) {
+      await logWebhook(workflowId, payload, 'failed', undefined, ipAddress, userAgent, 'Invalid secret token');
+      return { success: false, error: 'Invalid secret token' };
+    }
+    
+    // If HMAC signature verification is enabled, verify the signature
+    if (workflow.webhookSignatureEnabled && workflow.webhookSigningSecret) {
+      const format = (workflow.signatureHeader?.toLowerCase().includes('stripe') ? 'stripe' :
+                     workflow.signatureHeader?.toLowerCase().includes('github') ? 'github' :
+                     workflow.signatureHeader?.toLowerCase().includes('slack') ? 'slack' : 'custom') as SignatureFormat;
+      
+      const signatureResult = await verifyWebhookSignature(
+        headers,
+        rawBody,
+        workflow.webhookSigningSecret,
+        format,
+        workflow.timestampTolerance || 300
+      );
+      
+      if (!signatureResult.isValid) {
+        await logWebhook(
+          workflowId, 
+          payload, 
+          'failed', 
+          undefined, 
+          ipAddress, 
+          userAgent, 
+          `HMAC signature verification failed: ${signatureResult.error}`
+        );
+        return { 
+          success: false, 
+          error: `Invalid signature: ${signatureResult.error}`,
+        };
+      }
+      
+      console.log('[Webhook] HMAC signature verified successfully');
+    }
+    
+    // Check rate limit
+    const rateLimit = checkRateLimit(workflowId);
+    if (!rateLimit.allowed) {
+      await logWebhook(workflowId, payload, 'failed', undefined, ipAddress, userAgent, 'Rate limit exceeded');
+      return { 
+        success: false, 
+        error: 'Rate limit exceeded. Maximum 100 requests per minute.' 
+      };
+    }
+    
+    // Log webhook receipt
+    const log = await logWebhook(workflowId, payload, 'received', undefined, ipAddress, userAgent);
+    
+    // Get workflow definition
+    let workflowNodes, workflowEdges, workflowName;
+    
+    const template = getTemplateById(workflowId);
+    if (template) {
+      workflowNodes = template.nodes;
+      workflowEdges = template.edges;
+      workflowName = template.name;
+    } else {
+      // Try to load from database (custom workflows)
+      workflowNodes = workflow.nodes;
+      workflowEdges = workflow.edges;
+      workflowName = workflow.name;
+    }
+    
+    if (!workflowNodes || !workflowEdges) {
+      await prisma.webhookLog.update({
+        where: { id: log.id },
+        data: { status: 'failed', error: 'Workflow definition not found' },
+      });
+      return { success: false, error: 'Workflow definition not found' };
+    }
+    
+    // Create execution record
+    const execution = await prisma.execution.create({
+      data: {
+        workflowId,
+        userId: workflow.userId,
+        status: 'running',
+        result: { status: 'started', webhookPayload: payload },
+      },
+    });
+    
+    // Update log status
+    await prisma.webhookLog.update({
+      where: { id: log.id },
+      data: { status: 'processing' },
+    });
+    
+    // Execute the workflow
+    const result = await executeWorkflow(
+      workflowId,
+      workflowName,
+      workflowNodes as any,
+      workflowEdges as any,
+      payload // Pass webhook payload as initial data
+    );
+    
+    // Update execution record
+    await prisma.execution.update({
+      where: { id: execution.id },
+      data: {
+        status: result.success ? 'completed' : 'failed',
+        result: result.output,
+        error: result.error,
+        completedAt: new Date(),
+      },
+    });
+    
+    // Update webhook log
+    await prisma.webhookLog.update({
+      where: { id: log.id },
+      data: {
+        status: result.success ? 'completed' : 'failed',
+        response: result.output,
+        error: result.error,
+      },
+    });
+    
+    // Update workflow run count
+    await prisma.workflow.update({
+      where: { id: workflowId },
+      data: { runs: { increment: 1 }, lastExecutedAt: new Date() },
+    });
+    
+    return {
+      success: result.success,
+      executionId: execution.id,
+      output: result.output,
+      executionTime: result.executionTime,
+      stepsExecuted: result.stepsExecuted,
+      error: result.error,
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    
+    // Log error
+    await logWebhook(workflowId, payload, 'failed', undefined, ipAddress, userAgent, errorMessage);
+    
+    return {
+      success: false,
+      error: errorMessage,
+    };
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
+/**
+ * Process incoming webhook (legacy, without HMAC support)
  */
 export async function processWebhook(
   workflowId: string,
