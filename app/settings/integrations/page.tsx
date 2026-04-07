@@ -26,6 +26,15 @@ export default function IntegrationsPage() {
       status: 'not-connected',
     },
     {
+      id: 'anthropic',
+      name: 'Claude (Anthropic)',
+      icon: '🧠',
+      description: 'AI analysis, writing assistance, reasoning',
+      envVar: 'ANTHROPIC_API_KEY',
+      howToGetUrl: 'https://console.anthropic.com/settings/keys',
+      status: 'not-connected',
+    },
+    {
       id: 'pinterest',
       name: 'Pinterest',
       icon: '📌',

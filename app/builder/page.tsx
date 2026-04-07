@@ -245,14 +245,12 @@ function Flow() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [selectedNode, selectedEdge, nodes, edges, handleSave]);
 
-  // Auto-save every 30 seconds
+  // Auto-save DISABLED - localStorage quota issues (5MB limit)
+  // Manual save only (Ctrl+S or Save button)
   useEffect(() => {
-    const interval = setInterval(() => {
-      handleSave();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [nodes, edges]);
+    // No auto-save - user must explicitly save
+    console.log('[Builder] Auto-save disabled to prevent localStorage quota issues');
+  }, []);
 
 
 
