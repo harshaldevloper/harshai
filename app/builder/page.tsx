@@ -64,6 +64,24 @@ function Flow() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Auto-add default Trigger node on first load
+  useEffect(() => {
+    if (nodes.length === 0 && !templateLoaded && reactFlowInstance) {
+      // Add a default Schedule Trigger node to get users started
+      const defaultTrigger: Node = {
+        id: 'trigger_1',
+        type: 'trigger',
+        position: { x: 100, y: 200 },
+        data: {
+          label: 'Schedule Trigger',
+          triggerType: 'schedule',
+        },
+      };
+      setNodes([defaultTrigger]);
+      console.log('[Builder] Auto-added default trigger node');
+    }
+  }, [reactFlowInstance, nodes.length, templateLoaded, setNodes]);
+
   // Load template from URL parameter or localStorage
   useEffect(() => {
     const templateId = localStorage.getItem('template-to-import');
@@ -111,7 +129,13 @@ function Flow() {
       if (isValidConnection(params, nodes, edges)) {
         setEdges((eds) => addEdge({ ...params, animated: true, type: 'smoothstep' }, eds));
       } else {
-        alert('Invalid connection! Connections must follow: Trigger → Action/Condition → Action');
+        // More helpful error message
+        const hasTrigger = nodes.some(n => n.type === 'trigger');
+        if (!hasTrigger) {
+          alert('Start by adding a Trigger node first! Drag a trigger from the left panel, then connect it to an Action.');
+        } else {
+          alert('Invalid connection! Rules:\n\n✅ Trigger → Action\n✅ Trigger → Condition\n✅ Action → Action\n✅ Action → Condition\n✅ Condition → Action\n\n❌ No loops back to Trigger\n❌ Condition → Condition');
+        }
       }
     },
     [nodes, edges, setEdges]
