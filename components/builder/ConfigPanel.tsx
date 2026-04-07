@@ -4,6 +4,7 @@ import { Node } from 'reactflow';
 import { useState } from 'react';
 import OpenAIConfig from './nodes/config/OpenAIConfig';
 import ClaudeConfig from './nodes/config/ClaudeConfig';
+import ElevenLabsConfig from './nodes/config/ElevenLabsConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -112,7 +113,6 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
                 <ClaudeConfig 
                   config={node.data.config || {}}
                   onChange={(newConfig) => {
-                    // TODO: Update node data with new config
                     console.log('Claude config changed:', newConfig);
                   }}
                   testMode={process.env.NEXT_PUBLIC_TEST_MODE === 'true'}
@@ -120,8 +120,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* ElevenLabs Configuration */}
+            {node.data.actionType === 'elevenlabs' && (
+              <div className="mb-6">
+                <ElevenLabsConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('ElevenLabs config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions

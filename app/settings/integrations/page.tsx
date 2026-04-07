@@ -35,6 +35,15 @@ export default function IntegrationsPage() {
       status: 'not-connected',
     },
     {
+      id: 'elevenlabs',
+      name: 'ElevenLabs',
+      icon: '🎙️',
+      description: 'Text-to-speech, AI voice generation',
+      envVar: 'ELEVENLABS_API_KEY',
+      howToGetUrl: 'https://elevenlabs.io/app/settings/api-keys',
+      status: 'not-connected',
+    },
+    {
       id: 'pinterest',
       name: 'Pinterest',
       icon: '📌',
