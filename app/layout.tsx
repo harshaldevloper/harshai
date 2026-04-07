@@ -14,6 +14,14 @@ export const metadata: Metadata = {
     siteName: "HarshAI",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://ai-workflow-automator.vercel.app/harshai-logo.png",
+        width: 240,
+        height: 240,
+        alt: "HarshAI Logo",
+      },
+    ],
   },
 }
 
