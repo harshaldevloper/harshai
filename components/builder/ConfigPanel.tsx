@@ -5,6 +5,7 @@ import { useState } from 'react';
 import OpenAIConfig from './nodes/config/OpenAIConfig';
 import ClaudeConfig from './nodes/config/ClaudeConfig';
 import ElevenLabsConfig from './nodes/config/ElevenLabsConfig';
+import GmailConfig from './nodes/config/GmailConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -133,8 +134,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Gmail Configuration */}
+            {node.data.actionType === 'gmail' && (
+              <div className="mb-6">
+                <GmailConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('Gmail config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions
