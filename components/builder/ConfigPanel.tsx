@@ -3,6 +3,7 @@
 import { Node } from 'reactflow';
 import { useState } from 'react';
 import OpenAIConfig from './nodes/config/OpenAIConfig';
+import ClaudeConfig from './nodes/config/ClaudeConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -105,8 +106,22 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Anthropic/Claude Configuration */}
+            {node.data.actionType === 'claude' && (
+              <div className="mb-6">
+                <ClaudeConfig 
+                  config={node.data.config || {}}
+                  onChange={(newConfig) => {
+                    // TODO: Update node data with new config
+                    console.log('Claude config changed:', newConfig);
+                  }}
+                  testMode={process.env.NEXT_PUBLIC_TEST_MODE === 'true'}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions
