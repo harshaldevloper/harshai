@@ -1,6 +1,8 @@
 'use client';
 
 import { Node } from 'reactflow';
+import { useState } from 'react';
+import OpenAIConfig from './nodes/config/OpenAIConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -77,25 +79,45 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               <label className="block text-indigo-300 text-sm mb-2">
                 AI Tool
               </label>
-              <select className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500">
-                <option>ChatGPT</option>
-                <option>Claude</option>
-                <option>ElevenLabs</option>
-                <option>Midjourney</option>
-                <option>Jasper</option>
+              <select 
+                defaultValue={node.data.actionType || 'chatgpt'}
+                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="chatgpt">ChatGPT (OpenAI)</option>
+                <option value="claude">Claude (Anthropic)</option>
+                <option value="elevenlabs">ElevenLabs</option>
+                <option value="midjourney">Midjourney</option>
+                <option value="jasper">Jasper</option>
               </select>
             </div>
 
-            <div className="mb-6">
-              <label className="block text-indigo-300 text-sm mb-2">
-                Prompt / Instructions
-              </label>
-              <textarea
-                rows={5}
-                placeholder="Enter your prompt here..."
-                className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500 resize-none"
-              />
-            </div>
+            {/* OpenAI/ChatGPT Configuration */}
+            {node.data.actionType === 'chatgpt' && (
+              <div className="mb-6">
+                <OpenAIConfig 
+                  config={node.data.config || {}}
+                  onChange={(newConfig) => {
+                    // TODO: Update node data with new config
+                    console.log('OpenAI config changed:', newConfig);
+                  }}
+                  testMode={process.env.NEXT_PUBLIC_TEST_MODE === 'true'}
+                />
+              </div>
+            )}
+
+            {/* Generic Prompt for Other Actions */}
+            {node.data.actionType !== 'chatgpt' && (
+              <div className="mb-6">
+                <label className="block text-indigo-300 text-sm mb-2">
+                  Prompt / Instructions
+                </label>
+                <textarea
+                  rows={5}
+                  placeholder="Enter your prompt here..."
+                  className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500 resize-none"
+                />
+              </div>
+            )}
           </>
         )}
 
