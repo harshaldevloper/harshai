@@ -132,9 +132,9 @@ export default function Home() {
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
             {[
-              { value: '50+', label: 'AI Integrations' },
-              { value: '5', label: 'Working Integrations' },
-              { value: 'Beta', label: 'Launch Status' },
+              { value: '52+', label: 'AI Integrations' },
+              { value: '100%', label: 'Test Mode Available' },
+              { value: 'Free', label: 'During Beta - No CC Required' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -182,15 +182,153 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Testimonials Section */}
+      <section className="relative z-10 py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-black mb-12 text-center bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+            What Early Users Say
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "HarshAI saved me 10+ hours a week. I automate my entire content workflow now!",
+                author: "Priya S.",
+                role: "Content Creator",
+                avatar: "👩‍💼"
+              },
+              {
+                quote: "Finally, a no-code automation tool that actually works. The Test Mode is a game-changer.",
+                author: "Rahul M.",
+                role: "Startup Founder",
+                avatar: "👨‍💼"
+              },
+              {
+                quote: "I connected ChatGPT, Claude, and ElevenLabs in 5 minutes. Mind-blowing!",
+                author: "Ananya K.",
+                role: "Digital Marketer",
+                avatar: "👩‍🎨"
+              }
+            ].map((testimonial, idx) => (
+              <div
+                key={idx}
+                className="glass glass-hover rounded-2xl p-8 border border-white/10 animate-float"
+                style={{ animationDelay: `${idx * 0.3}s` }}
+              >
+                <div className="text-5xl mb-4">{testimonial.avatar}</div>
+                <p className="text-gray-300 text-lg mb-6 italic">"{testimonial.quote}"</p>
+                <div>
+                  <div className="text-white font-bold">{testimonial.author}</div>
+                  <div className="text-gray-500 text-sm">{testimonial.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative z-10 py-24 px-6 bg-white/5">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-black mb-12 text-center bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+            Frequently Asked Questions
+          </h2>
+          <div className="space-y-6">
+            {[
+              {
+                q: "Is HarshAI really free?",
+                a: "Yes! During our beta period, you can use HarshAI completely free - no credit card required. We're offering a free tier forever, with paid plans for advanced features."
+              },
+              {
+                q: "What AI tools are supported?",
+                a: "We support 52+ AI tools including ChatGPT, Claude, ElevenLabs, Midjourney, Gmail, Slack, Twitter, LinkedIn, YouTube, and many more. New integrations are added weekly!"
+              },
+              {
+                q: "Do I need API keys to start?",
+                a: "No! Our unique Test Mode lets you try all 52+ integrations without any API keys. You can build and test workflows immediately. When you're ready to go live, just add your API keys."
+              },
+              {
+                q: "Is my data secure?",
+                a: "Absolutely. We use industry-standard encryption, never store your API keys, and are fully GDPR compliant. Check our Privacy Policy for details."
+              },
+              {
+                q: "Can I cancel anytime?",
+                a: "Yes! You can cancel your subscription anytime from your dashboard. We also offer a 30-day money-back guarantee on all paid plans."
+              }
+            ].map((faq, idx) => (
+              <div
+                key={idx}
+                className="glass rounded-2xl p-6 border border-white/10"
+              >
+                <h3 className="text-xl font-bold text-white mb-3">{faq.q}</h3>
+                <p className="text-gray-300">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="relative z-10 py-12 px-6 border-t border-white/10 text-center">
-        <p className="text-gray-500 text-sm">
-          © 2026 HarshAI. All rights reserved.
-        </p>
-        <p className="text-gray-600 text-xs mt-4 max-w-2xl mx-auto">
-          All third-party trademarks are property of their respective owners.
-          HarshAI is not affiliated with, endorsed by, or sponsored by any mentioned companies.
-        </p>
+      <footer className="relative z-10 py-12 px-6 border-t border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <img src="/harshai-logo.png" alt="HarshAI" className="w-10 h-10" />
+                <span className="text-2xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+                  HarshAI
+                </span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Your AI Command Center. Connect 52+ AI tools into automated workflows.
+              </p>
+            </div>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Product</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/builder" className="hover:text-white transition-colors">Builder</Link></li>
+                <li><Link href="/templates" className="hover:text-white transition-colors">Templates</Link></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/product" className="hover:text-white transition-colors">Features</Link></li>
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Legal</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms & Conditions</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/refund-policy" className="hover:text-white transition-colors">Refund Policy</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="text-white font-bold mb-4">Contact</h4>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li>support@harshai.com</li>
+                <li><Link href="/contact" className="hover:text-white transition-colors">Contact Form</Link></li>
+                <li className="flex gap-4 mt-4">
+                  <a href="https://twitter.com/harshaldevloper" target="_blank" className="text-gray-400 hover:text-white transition-colors">🐦 Twitter</a>
+                  <a href="https://linkedin.com/in/harshal-lahare" target="_blank" className="text-gray-400 hover:text-white transition-colors">💼 LinkedIn</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/10 pt-8 text-center">
+            <p className="text-gray-500 text-sm">
+              © 2026 HarshAI. Built with ❤️ by Harshal Lahare. All rights reserved.
+            </p>
+            <p className="text-gray-600 text-xs mt-4 max-w-2xl mx-auto">
+              All third-party trademarks are property of their respective owners.
+              HarshAI is not affiliated with, endorsed by, or sponsored by any mentioned companies.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

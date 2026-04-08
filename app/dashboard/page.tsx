@@ -8,6 +8,9 @@ export default async function DashboardPage() {
     redirect('/sign-in');
   }
 
+  const email = user.emailAddresses?.[0]?.emailAddress || 'User';
+  const firstName = user.firstName || email.split('@')[0];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
       {/* Header */}
@@ -20,7 +23,7 @@ export default async function DashboardPage() {
           
           <div className="flex items-center gap-4">
             <span className="text-indigo-200 text-sm">
-              {user.emailAddresses[0]?.emailAddress}
+              {email}
             </span>
             <UserButton 
               afterSignOutUrl="/"
@@ -40,7 +43,7 @@ export default async function DashboardPage() {
       <main className="container mx-auto px-4 py-12">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
           <h1 className="text-3xl font-bold text-white mb-4">
-            Welcome to HarshAI, {user.firstName || user.emailAddresses[0]?.emailAddress}! 🎉
+            Welcome to HarshAI, {firstName}! 🎉
           </h1>
           
           <p className="text-indigo-200 mb-8">
