@@ -136,12 +136,12 @@ export default function TemplateCard({ template, onClick }: TemplateCardProps) {
         {/* Stats */}
         <div className="flex items-center justify-between text-xs text-gray-500">
           <div className="flex items-center gap-3">
-            <span>⬇️ {template.imports}</span>
-            <span>⭐ {template.rating.toFixed(1)} ({template.ratingCount})</span>
-            <span>🤍 {template._count.favorites}</span>
+            <span>⬇️ {template.imports || 0}</span>
+            <span>⭐ {(template.rating || 0).toFixed(1)} ({template.ratingCount || 0})</span>
+            <span>🤍 {template._count?.favorites || 0}</span>
           </div>
           <span className="text-gray-400">
-            by {template.author.name || template.author.email.split('@')[0]}
+            by {template.author?.name || template.author?.email?.split('@')[0] || 'Unknown'}
           </span>
         </div>
       </div>
