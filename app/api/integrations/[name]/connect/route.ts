@@ -5,7 +5,6 @@
 
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { integrationRegistry } from '@/lib/integrations/registry';
 
 export async function POST(
   request: Request,
@@ -18,20 +17,11 @@ export async function POST(
     }
 
     const { name } = await params;
-    const integration = integrationRegistry.getIntegration(name);
     
-    if (!integration) {
-      return NextResponse.json({ error: 'Integration not found' }, { status: 404 });
-    }
-
-    const { redirectUri } = await request.json();
-    
-    // Generate state token for CSRF protection
-    const state = Buffer.from(JSON.stringify({ userId, timestamp: Date.now() })).toString('base64');
-    
-    const authUrl = integration.getAuthUrl(userId, redirectUri, state);
-    
-    return NextResponse.json({ authUrl, state });
+    // Integration OAuth flow coming soon
+    return NextResponse.json({ 
+      error: 'OAuth integration setup coming soon. Please use Test Mode for now.' 
+    }, { status: 501 });
   } catch (error: any) {
     return NextResponse.json(
       { error: error.message },
