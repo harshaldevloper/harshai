@@ -97,12 +97,12 @@ export default function Home() {
       <section id="home" className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-20">
         <div className="text-center max-w-5xl">
           {/* Badge */}
-          <div className="inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-8 animate-pulse">
+          <div className="inline-block px-6 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-8 animate-pulse-glow glass">
             ✨ The Future of AI Automation
           </div>
 
           {/* Main Heading with Gradient */}
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent animate-gradient neon-glow">
             Your AI Command Center
           </h1>
 
@@ -117,13 +117,13 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="/builder"
-              className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25"
+              className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25 btn-shine animate-pulse-glow"
             >
               Try Builder →
             </Link>
             <Link
               href="/sign-up"
-              className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg hover:bg-purple-500/10 hover:border-purple-500 transition-all duration-200"
+              className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg hover:bg-purple-500/10 hover:border-purple-500 transition-all duration-200 glass"
             >
               Get Started Free
             </Link>
@@ -164,15 +164,16 @@ export default function Home() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { icon: '🎨', title: 'Visual Builder', desc: 'Drag, drop, automate. No code required.' },
-              { icon: '🔗', title: '50+ Integrations', desc: 'ChatGPT, Claude, ElevenLabs & more.' },
+              { icon: '🔗', title: '52+ Integrations', desc: 'ChatGPT, Claude, ElevenLabs & more.' },
               { icon: '⚡', title: 'Smart Triggers', desc: 'Schedule, webhook, upload automation.' },
               { icon: '🧠', title: 'Conditional Logic', desc: 'If/then rules for smart workflows.' },
-            ].map((feature) => (
+            ].map((feature, idx) => (
               <div
                 key={feature.title}
-                className="group bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-2"
+                className="group glass glass-hover border border-white/10 rounded-2xl p-8 hover:border-purple-500/30 transition-all duration-300 hover:-translate-y-2 animate-float"
+                style={{ animationDelay: `${idx * 0.5}s` }}
               >
-                <div className="text-5xl mb-4">{feature.icon}</div>
+                <div className="text-5xl mb-4 animate-float">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-3">{feature.title}</h3>
                 <p className="text-gray-400">{feature.desc}</p>
               </div>
