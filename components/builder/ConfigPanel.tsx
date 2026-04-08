@@ -9,6 +9,7 @@ import GmailConfig from './nodes/config/GmailConfig';
 import SlackConfig from './nodes/config/SlackConfig';
 import NotionConfig from './nodes/config/NotionConfig';
 import TwitterConfig from './nodes/config/TwitterConfig';
+import DiscordConfig from './nodes/config/DiscordConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -194,8 +195,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Discord Configuration */}
+            {node.data.actionType === 'discord' && (
+              <div className="mb-6">
+                <DiscordConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('Discord config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && node.data.actionType !== 'discord' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions
