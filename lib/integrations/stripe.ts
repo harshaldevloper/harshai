@@ -7,6 +7,7 @@ const STRIPE_API_URL = 'https://api.stripe.com/v1';
 
 export interface StripeConfig {
   secretKey: string;
+  testMode?: boolean;
 }
 
 export interface StripeCharge {
@@ -25,6 +26,15 @@ export interface StripeResponse {
 
 export async function createCharge(charge: StripeCharge, config: StripeConfig): Promise<StripeResponse> {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[Stripe] Test Mode: Simulating charge');
+      return {
+        success: true,
+        chargeId: 'ch_test_' + Date.now(),
+      };
+    }
+
     const response = await fetch(`${STRIPE_API_URL}/charges`, {
       method: 'POST',
       headers: {

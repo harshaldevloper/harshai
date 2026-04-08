@@ -3,9 +3,15 @@
  * Post updates, share articles
  */
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2';
-export interface LinkedInConfig { accessToken: string; }
+export interface LinkedInConfig { accessToken: string; testMode?: boolean; }
 export async function postToLinkedIn(text: string, config: LinkedInConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[LinkedIn] Test Mode: Simulating post');
+      return { success: true, postId: 'mock-post-test-' + Date.now() };
+    }
+
     const response = await fetch(`${LINKEDIN_API_URL}/ugcPosts`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${config.accessToken}`, 'Content-Type': 'application/json', 'X-Restli-Protocol-Version': '2.0.0' },
