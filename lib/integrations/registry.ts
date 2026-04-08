@@ -4,16 +4,12 @@
  */
 
 import { IIntegration, BaseIntegration } from './base';
-import { GmailIntegration } from './gmail';
-import { SlackIntegration } from './slack';
 
 class IntegrationRegistry {
   private integrations: Map<string, IIntegration> = new Map();
 
   constructor() {
-    // Register built-in integrations
-    this.register(new GmailIntegration());
-    this.register(new SlackIntegration());
+    // Integrations will be registered dynamically
   }
 
   /**
