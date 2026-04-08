@@ -71,6 +71,15 @@ export default function IntegrationsPage() {
       status: 'not-connected',
     },
     {
+      id: 'google-sheets',
+      name: 'Google Sheets',
+      icon: '📊',
+      description: 'Read/write spreadsheet data',
+      envVar: 'GOOGLE_SHEETS_API_KEY',
+      howToGetUrl: 'https://developers.google.com/sheets/api/quickstart/nodejs',
+      status: 'not-connected',
+    },
+    {
       id: 'discord',
       name: 'Discord',
       icon: '💬',

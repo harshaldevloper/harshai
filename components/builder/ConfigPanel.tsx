@@ -11,6 +11,7 @@ import NotionConfig from './nodes/config/NotionConfig';
 import TwitterConfig from './nodes/config/TwitterConfig';
 import DiscordConfig from './nodes/config/DiscordConfig';
 import PinterestConfig from './nodes/config/PinterestConfig';
+import GoogleSheetsConfig from './nodes/config/GoogleSheetsConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -100,6 +101,7 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
                 <option value="twitter">Twitter/X</option>
                 <option value="discord">Discord</option>
                 <option value="pinterest">Pinterest</option>
+                <option value="google-sheets">Google Sheets</option>
                 <option value="midjourney">Midjourney</option>
                 <option value="jasper">Jasper</option>
               </select>
@@ -223,8 +225,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Google Sheets Configuration */}
+            {node.data.actionType === 'google-sheets' && (
+              <div className="mb-6">
+                <GoogleSheetsConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('Google Sheets config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && node.data.actionType !== 'discord' && node.data.actionType !== 'pinterest' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && node.data.actionType !== 'discord' && node.data.actionType !== 'pinterest' && node.data.actionType !== 'google-sheets' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions
