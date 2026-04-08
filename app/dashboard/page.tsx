@@ -1,11 +1,29 @@
-import { UserButton, currentUser } from '@clerk/nextjs';
-import { redirect } from 'next/navigation';
+'use client';
 
-export default async function DashboardPage() {
-  const user = await currentUser();
-  
+import { UserButton, useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function DashboardPage() {
+  const { user, isLoaded } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isLoaded && !user) {
+      router.push('/sign-in');
+    }
+  }, [user, isLoaded, router]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
   if (!user) {
-    redirect('/sign-in');
+    return null;
   }
 
   const email = user.emailAddresses?.[0]?.emailAddress || 'User';
@@ -22,7 +40,7 @@ export default async function DashboardPage() {
           </div>
           
           <div className="flex items-center gap-4">
-            <span className="text-indigo-200 text-sm">
+            <span className="text-indigo-200 text-sm hidden md:block">
               {email}
             </span>
             <UserButton 
