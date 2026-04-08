@@ -36,8 +36,10 @@ export default function PricingPage() {
         '✅ API Access',
         '❌ No Team Features',
       ],
-      cta: 'Start Pro Trial',
-      href: '/sign-up?plan=pro',
+      cta: 'Start 14-Day Free Trial',
+      href: billingCycle === 'monthly' 
+        ? 'https://buy.paddle.com/checkout/pro_01knpm8mzc37nzxz2tvy83pt7a' 
+        : 'https://buy.paddle.com/checkout/pro_01knpmcpe5jw8r288bmrw71nk6',
       popular: true,
     },
     {
@@ -53,8 +55,8 @@ export default function PricingPage() {
         '✅ SLA Guarantee',
         '✅ White Label Option',
       ],
-      cta: 'Contact Sales',
-      href: '/contact',
+      cta: 'Start Enterprise Trial',
+      href: 'https://buy.paddle.com/checkout/pro_01knpnxnm8ky1md7xhd71m2qkw',
       popular: false,
     },
   ];
@@ -182,6 +184,7 @@ export default function PricingPage() {
                 </h3>
                 <p className="text-gray-400">
                   Yes! All 52+ integrations have Test Mode - you can build and test workflows without any API keys or payment.
+                  Plus, all paid plans include a **14-day free trial** - no credit card required to start!
                 </p>
               </div>
 
