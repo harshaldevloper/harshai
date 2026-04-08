@@ -12,6 +12,8 @@ import TwitterConfig from './nodes/config/TwitterConfig';
 import DiscordConfig from './nodes/config/DiscordConfig';
 import PinterestConfig from './nodes/config/PinterestConfig';
 import GoogleSheetsConfig from './nodes/config/GoogleSheetsConfig';
+import StripeConfig from './nodes/config/StripeConfig';
+import TelegramConfig from './nodes/config/TelegramConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -102,6 +104,16 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
                 <option value="discord">Discord</option>
                 <option value="pinterest">Pinterest</option>
                 <option value="google-sheets">Google Sheets</option>
+                <option value="stripe">Stripe</option>
+                <option value="telegram">Telegram</option>
+                <option value="reddit">Reddit</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="instagram">Instagram</option>
+                <option value="facebook">Facebook</option>
+                <option value="tiktok">TikTok</option>
+                <option value="youtube">YouTube</option>
+                <option value="github">GitHub</option>
+                <option value="whatsapp">WhatsApp</option>
                 <option value="midjourney">Midjourney</option>
                 <option value="jasper">Jasper</option>
               </select>
