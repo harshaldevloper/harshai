@@ -8,9 +8,7 @@ export default function Header() {
       {/* Logo */}
       <div className="flex items-center gap-3">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold">H</span>
-          </div>
+          <img src="/harshai-logo.png" alt="HarshAI" className="w-8 h-8" />
           <span className="text-white font-bold text-lg">HarshAI Builder</span>
         </Link>
       </div>
