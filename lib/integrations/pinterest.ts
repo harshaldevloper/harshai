@@ -6,6 +6,7 @@
 const PINTEREST_API_URL = 'https://api.pinterest.com/v5';
 
 export interface PinterestConfig {
+  testMode?: boolean;
   accessToken: string;
 }
 
@@ -35,6 +36,12 @@ export async function createPin(
   config: PinterestConfig
 ): Promise<PinterestResponse> {
   try {
+    // Test Mode
+    if (config.testMode) {
+      console.log('[pinterest ] Test Mode');
+      return { success: true, id: 'test_' + Date.now() };
+    }
+
     const response = await fetch(`${PINTEREST_API_URL}/pins`, {
       method: 'POST',
       headers: {
@@ -81,6 +88,12 @@ export async function testPinterestConnection(accessToken: string): Promise<{
   error?: string;
 }> {
   try {
+    // Test Mode
+    if (config.testMode) {
+      console.log('[pinterest ] Test Mode');
+      return { success: true, id: 'test_' + Date.now() };
+    }
+
     const response = await fetch(`${PINTEREST_API_URL}/user_account`, {
       headers: {
         'Authorization': `Bearer ${accessToken}`,

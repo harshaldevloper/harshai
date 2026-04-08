@@ -3,9 +3,16 @@
  * Post videos (requires special access)
  */
 const TIKTOK_API_URL = 'https://open.tiktokapis.com/v2';
-export interface TikTokConfig { accessToken: string; }
+export interface TikTokConfig {
+  testMode?: boolean; accessToken: string; }
 export async function postToTikTok(videoUrl: string, description: string, config: TikTokConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[TikTok] Test Mode: Simulating post');
+      return { success: true, postId: 'tt_test_' + Date.now() };
+    }
+
     const response = await fetch(`${TIKTOK_API_URL}/post/publish/video/init/`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${config.accessToken}`, 'Content-Type': 'application/json' },

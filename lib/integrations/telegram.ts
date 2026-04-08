@@ -6,6 +6,7 @@
 const TELEGRAM_API_URL = 'https://api.telegram.org/bot';
 
 export interface TelegramConfig {
+  testMode?: boolean;
   botToken: string;
 }
 
@@ -16,6 +17,12 @@ export interface TelegramMessage {
 
 export async function sendTelegramMessage(message: TelegramMessage, config: TelegramConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[Telegram] Test Mode: Simulating message');
+      return { success: true, messageId: 'tg_test_' + Date.now() };
+    }
+
     const url = `${TELEGRAM_API_URL}${config.botToken}/sendMessage`;
     const response = await fetch(url, {
       method: 'POST',

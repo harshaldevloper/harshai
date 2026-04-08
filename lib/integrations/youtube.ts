@@ -3,9 +3,16 @@
  * Upload videos, manage playlists
  */
 const YOUTUBE_API_URL = 'https://www.googleapis.com/youtube/v3';
-export interface YouTubeConfig { apiKey: string; }
+export interface YouTubeConfig {
+  testMode?: boolean; apiKey: string; }
 export async function uploadToYouTube(title: string, description: string, videoUrl: string, config: YouTubeConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[YouTube] Test Mode: Simulating upload');
+      return { success: true, videoId: 'yt_test_' + Date.now() };
+    }
+
     const response = await fetch(`${YOUTUBE_API_URL}/videos?part=snippet,status&key=${config.apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

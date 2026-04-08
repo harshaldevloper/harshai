@@ -6,6 +6,7 @@
 const TWILIO_API_URL = 'https://api.twilio.com/2010-04-01';
 
 export interface WhatsAppConfig {
+  testMode?: boolean;
   accountSid: string;
   authToken: string;
   fromNumber: string;
@@ -18,6 +19,12 @@ export interface WhatsAppMessage {
 
 export async function sendWhatsAppMessage(message: WhatsAppMessage, config: WhatsAppConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[WhatsApp] Test Mode: Simulating message');
+      return { success: true, messageId: 'wa_test_' + Date.now() };
+    }
+
     const url = `${TWILIO_API_URL}/Accounts/${config.accountSid}/Messages.json`;
     const response = await fetch(url, {
       method: 'POST',

@@ -3,9 +3,16 @@
  * Post to pages, groups
  */
 const FB_API_URL = 'https://graph.facebook.com/v18.0';
-export interface FacebookConfig { accessToken: string; pageId?: string; }
+export interface FacebookConfig {
+  testMode?: boolean; accessToken: string; pageId?: string; }
 export async function postToFacebook(message: string, config: FacebookConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[Facebook] Test Mode: Simulating post');
+      return { success: true, postId: 'fb_test_' + Date.now() };
+    }
+
     const pageId = config.pageId || 'me';
     const url = `${FB_API_URL}/${pageId}/feed?message=${encodeURIComponent(message)}&access_token=${config.accessToken}`;
     const response = await fetch(url, { method: 'POST' });

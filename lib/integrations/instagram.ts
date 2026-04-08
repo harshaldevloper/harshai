@@ -3,9 +3,16 @@
  * Post images, stories
  */
 const INSTAGRAM_API_URL = 'https://graph.facebook.com/v18.0';
-export interface InstagramConfig { accessToken: string; instagramAccountId: string; }
+export interface InstagramConfig {
+  testMode?: boolean; accessToken: string; instagramAccountId: string; }
 export async function postToInstagram(caption: string, imageUrl: string, config: InstagramConfig) {
   try {
+    // Test Mode - return mock response
+    if (config.testMode) {
+      console.log('[Instagram] Test Mode: Simulating post');
+      return { success: true, postId: 'ig_test_' + Date.now() };
+    }
+
     const response = await fetch(`${INSTAGRAM_API_URL}/${config.instagramAccountId}/media`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
