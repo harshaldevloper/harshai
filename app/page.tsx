@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const navLinks = ['Home', 'About', 'Use Cases', 'Demo', 'Contact'];
+  const navLinks = ['Home', 'About', 'Use Cases', 'Demo', 'Pricing', 'Contact'];
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a0f', color: 'white', overflowX: 'hidden' }}>
