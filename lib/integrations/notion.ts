@@ -8,6 +8,7 @@ const NOTION_API_URL = 'https://api.notion.com/v1';
 export interface NotionConfig {
   apiKey: string;
   databaseId?: string;
+  testMode?: boolean;
 }
 
 export interface NotionPage {
@@ -30,6 +31,24 @@ export async function createPage(
   config: NotionConfig
 ): Promise<NotionResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Notion] Test Mode: Simulating page creation');
+      return {
+        success: true,
+        pageId: 'test-page-' + Date.now(),
+        url: 'https://notion.so/test-page',
+      };
+    }
+
+    // Validate API key for live mode
+    if (!config.apiKey) {
+      return {
+        success: false,
+        error: 'Notion API key is required. Add it in Settings > Integrations or enable Test Mode.',
+      };
+    }
+
     const response = await fetch(`${NOTION_API_URL}/pages`, {
       method: 'POST',
       headers: {

@@ -14,9 +14,7 @@ export default async function DashboardPage() {
       <header className="border-b border-white/10 bg-black/20 backdrop-blur-lg">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold">H</span>
-            </div>
+            <img src="/harshai-logo.png" alt="HarshAI" className="w-8 h-8" />
             <span className="text-white font-bold text-lg">HarshAI Dashboard</span>
           </div>
           

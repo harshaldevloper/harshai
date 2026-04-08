@@ -33,9 +33,12 @@ export default function Home() {
           {/* Logo */}
           <Link 
             href="/" 
-            className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
           >
-            HarshAI
+            <img src="/harshai-logo.png" alt="HarshAI" className="w-10 h-10 sm:w-12 sm:h-12" />
+            <span className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+              HarshAI
+            </span>
           </Link>
 
           {/* Desktop Navigation - HIDDEN on mobile */}
@@ -127,11 +130,11 @@ export default function Home() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
             {[
               { value: '50+', label: 'AI Integrations' },
-              { value: '10K+', label: 'Active Users' },
-              { value: '1M+', label: 'Workflows Created' },
+              { value: '5', label: 'Working Integrations' },
+              { value: 'Beta', label: 'Launch Status' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">

@@ -92,7 +92,9 @@ export default function UseCasesPage() {
       {/* Navigation */}
       <nav className="relative z-50 px-6 py-4 backdrop-blur-xl bg-black/80 border-b border-white/10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/harshai-logo.png" alt="HarshAI" className="w-12 h-12" />
+            <span className="text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
             HarshAI
           </Link>
           <div className="hidden md:flex gap-6">

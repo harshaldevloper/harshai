@@ -23,8 +23,11 @@ export default function AboutPage() {
       {/* Navigation */}
       <nav className="relative z-50 px-6 py-4 backdrop-blur-xl bg-black/80 border-b border-white/10">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
-            HarshAI
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/harshai-logo.png" alt="HarshAI" className="w-12 h-12" />
+            <span className="text-3xl font-black bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
+              HarshAI
+            </span>
           </Link>
           <div className="hidden md:flex gap-6">
             <Link href="/" className="text-gray-300 hover:text-white transition-colors">Home</Link>
@@ -58,9 +61,9 @@ export default function AboutPage() {
 
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { number: '50+', label: 'AI Integrations' },
-              { number: '10K+', label: 'Active Users' },
-              { number: '1M+', label: 'Workflows Created' },
+              { number: '50+', label: 'AI Integrations (Planned)' },
+              { number: '5', label: 'Working Integrations' },
+              { number: 'Beta', label: 'Launch Status' },
             ].map((stat, i) => (
               <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10">
                 <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">

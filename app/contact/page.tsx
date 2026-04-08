@@ -24,7 +24,10 @@ export default function ContactPage() {
       
       <nav className="relative z-50 px-8 py-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <Link href="/" className="text-3xl font-bold gradient-text">HarshAI</Link>
+          <Link href="/" className="flex items-center gap-2">
+            <img src="/harshai-logo.png" alt="HarshAI" className="w-12 h-12" />
+            <span className="text-3xl font-bold gradient-text">HarshAI</span>
+          </Link>
           <div className="flex gap-8">
             {['Home', 'About', 'Use Cases', 'Demo', 'Contact'].map((item) => (
               <Link

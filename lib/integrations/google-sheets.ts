@@ -8,6 +8,7 @@ const SHEETS_API_URL = 'https://sheets.googleapis.com/v4/spreadsheets';
 export interface GoogleSheetsConfig {
   apiKey: string;
   spreadsheetId: string;
+  testMode?: boolean;
 }
 
 export interface SheetRange {
@@ -28,9 +29,27 @@ export interface SheetsResponse {
 export async function readSheet(
   spreadsheetId: string,
   range: string,
-  apiKey: string
+  apiKey: string,
+  testMode: boolean = false
 ): Promise<SheetsResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (testMode) {
+      console.log('[Google Sheets] Test Mode: Simulating read operation');
+      return {
+        success: true,
+        data: [['Test', 'Data'], ['Row', '2']],
+      };
+    }
+
+    // Validate API key for live mode
+    if (!apiKey) {
+      return {
+        success: false,
+        error: 'Google Sheets API key is required. Add it in Settings > Integrations or enable Test Mode.',
+      };
+    }
+
     const url = `${SHEETS_API_URL}/${spreadsheetId}/values/${range}?key=${apiKey}`;
     const response = await fetch(url);
 

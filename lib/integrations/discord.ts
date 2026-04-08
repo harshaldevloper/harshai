@@ -7,6 +7,7 @@ const DISCORD_API_URL = 'https://discord.com/api/v10';
 
 export interface DiscordConfig {
   botToken: string;
+  testMode?: boolean;
 }
 
 export interface DiscordMessage {
@@ -29,6 +30,24 @@ export async function sendMessage(
   config: DiscordConfig
 ): Promise<DiscordResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Discord] Test Mode: Simulating message send');
+      return {
+        success: true,
+        messageId: 'test-msg-' + Date.now(),
+        channelId: message.channelId,
+      };
+    }
+
+    // Validate API key for live mode
+    if (!config.botToken) {
+      return {
+        success: false,
+        error: 'Discord bot token is required. Add it in Settings > Integrations or enable Test Mode.',
+      };
+    }
+
     const response = await fetch(
       `${DISCORD_API_URL}/channels/${message.channelId}/messages`,
       {
