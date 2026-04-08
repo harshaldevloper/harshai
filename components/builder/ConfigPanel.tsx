@@ -8,6 +8,7 @@ import ElevenLabsConfig from './nodes/config/ElevenLabsConfig';
 import GmailConfig from './nodes/config/GmailConfig';
 import SlackConfig from './nodes/config/SlackConfig';
 import NotionConfig from './nodes/config/NotionConfig';
+import TwitterConfig from './nodes/config/TwitterConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -94,6 +95,8 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
                 <option value="gmail">Gmail</option>
                 <option value="slack">Slack</option>
                 <option value="notion">Notion</option>
+                <option value="twitter">Twitter/X</option>
+                <option value="discord">Discord</option>
                 <option value="midjourney">Midjourney</option>
                 <option value="jasper">Jasper</option>
               </select>
@@ -178,8 +181,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Twitter/X Configuration */}
+            {node.data.actionType === 'twitter' && (
+              <div className="mb-6">
+                <TwitterConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('Twitter config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions

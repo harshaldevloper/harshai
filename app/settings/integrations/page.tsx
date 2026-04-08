@@ -71,6 +71,15 @@ export default function IntegrationsPage() {
       status: 'not-connected',
     },
     {
+      id: 'discord',
+      name: 'Discord',
+      icon: '💬',
+      description: 'Send messages to channels',
+      envVar: 'DISCORD_BOT_TOKEN',
+      howToGetUrl: 'https://discord.com/developers/applications',
+      status: 'not-connected',
+    },
+    {
       id: 'notion',
       name: 'Notion',
       icon: '📓',
