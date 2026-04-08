@@ -80,6 +80,15 @@ export default function IntegrationsPage() {
       status: 'not-connected',
     },
     {
+      id: 'twitter',
+      name: 'Twitter/X',
+      icon: '🐦',
+      description: 'Post tweets and threads',
+      envVar: 'TWITTER_BEARER_TOKEN',
+      howToGetUrl: 'https://developer.twitter.com/',
+      status: 'not-connected',
+    },
+    {
       id: 'slack',
       name: 'Slack',
       icon: '💬',
