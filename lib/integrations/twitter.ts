@@ -11,6 +11,7 @@ export interface TwitterConfig {
   apiSecret?: string;
   accessToken?: string;
   accessSecret?: string;
+  testMode?: boolean;
 }
 
 export interface TweetResponse {
@@ -29,6 +30,16 @@ export async function postTweet(
   config: TwitterConfig
 ): Promise<TweetResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Twitter] Test Mode: Simulating tweet post');
+      return {
+        success: true,
+        tweetId: 'test-' + Date.now(),
+        text: text,
+      };
+    }
+
     // Using Twitter API v2
     const response = await fetch(`${TWITTER_API_URL}/tweets`, {
       method: 'POST',

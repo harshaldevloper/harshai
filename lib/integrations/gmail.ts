@@ -8,6 +8,7 @@ const GMAIL_API_URL = 'https://gmail.googleapis.com/gmail/v1';
 export interface GmailConfig {
   accessToken: string;
   userId?: string;
+  testMode?: boolean;
 }
 
 export interface EmailMessage {
@@ -49,6 +50,16 @@ export async function sendEmail(
   config: GmailConfig
 ): Promise<GmailResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Gmail] Test Mode: Simulating email send');
+      return {
+        success: true,
+        messageId: 'test-msg-' + Date.now(),
+        threadId: 'test-thread-' + Date.now(),
+      };
+    }
+
     const raw = encodeEmail(message);
     
     const response = await fetch(

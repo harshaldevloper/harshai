@@ -8,6 +8,7 @@ const SLACK_API_URL = 'https://slack.com/api';
 export interface SlackConfig {
   botToken: string;
   channelId?: string;
+  testMode?: boolean;
 }
 
 export interface SlackMessage {
@@ -32,6 +33,16 @@ export async function sendMessage(
   config: SlackConfig
 ): Promise<SlackResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Slack] Test Mode: Simulating message send');
+      return {
+        success: true,
+        ts: 'test-' + Date.now(),
+        channel: message.channel || config.channelId,
+      };
+    }
+
     const response = await fetch(`${SLACK_API_URL}/chat.postMessage`, {
       method: 'POST',
       headers: {
