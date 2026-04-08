@@ -6,9 +6,6 @@
 import { IIntegration, BaseIntegration } from './base';
 import { GmailIntegration } from './gmail';
 import { SlackIntegration } from './slack';
-import { NotionIntegration } from './notion';
-import { TwitterIntegration } from './twitter';
-import { GitHubIntegration } from './github';
 
 class IntegrationRegistry {
   private integrations: Map<string, IIntegration> = new Map();
@@ -17,9 +14,6 @@ class IntegrationRegistry {
     // Register built-in integrations
     this.register(new GmailIntegration());
     this.register(new SlackIntegration());
-    this.register(new NotionIntegration());
-    this.register(new TwitterIntegration());
-    this.register(new GitHubIntegration());
   }
 
   /**
