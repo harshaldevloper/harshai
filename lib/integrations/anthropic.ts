@@ -11,6 +11,7 @@ export interface AnthropicConfig {
   maxTokens?: number;
   temperature?: number;
   systemPrompt?: string;
+  testMode?: boolean;
 }
 
 export interface AnthropicInput {
@@ -39,11 +40,25 @@ export async function executeAnthropicChat(input: AnthropicInput): Promise<Anthr
   try {
     const { messages, config } = input;
     
-    // Validate API key
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[Anthropic] Test Mode: Simulating Claude response');
+      return {
+        success: true,
+        content: '[Test Mode] This is a test response from Claude. In production, this would be the actual AI response.',
+        usage: {
+          inputTokens: 10,
+          outputTokens: 20
+        },
+        model: 'claude-3-sonnet-20240229 (test)'
+      };
+    }
+
+    // Validate API key for live mode
     if (!config.apiKey) {
       return {
         success: false,
-        error: 'Anthropic API key is required. Add it in Settings > Integrations or use Test Mode.'
+        error: 'Anthropic API key is required. Add it in Settings > Integrations or enable Test Mode.'
       };
     }
 

@@ -11,6 +11,7 @@ export interface OpenAIConfig {
   temperature?: number;
   maxTokens?: number;
   systemPrompt?: string;
+  testMode?: boolean;
 }
 
 export interface OpenAIInput {
@@ -40,11 +41,26 @@ export async function executeOpenAIChat(input: OpenAIInput): Promise<OpenAIOutpu
   try {
     const { messages, config } = input;
     
-    // Validate API key
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[OpenAI] Test Mode: Simulating ChatGPT response');
+      return {
+        success: true,
+        content: '[Test Mode] This is a test response from ChatGPT. In production, this would be the actual AI response.',
+        usage: {
+          promptTokens: 10,
+          completionTokens: 20,
+          totalTokens: 30
+        },
+        model: 'gpt-4-turbo (test)'
+      };
+    }
+
+    // Validate API key for live mode
     if (!config.apiKey) {
       return {
         success: false,
-        error: 'OpenAI API key is required. Add it in Settings > Integrations or use Test Mode.'
+        error: 'OpenAI API key is required. Add it in Settings > Integrations or enable Test Mode.'
       };
     }
 

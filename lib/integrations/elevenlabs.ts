@@ -9,6 +9,7 @@ export interface ElevenLabsConfig {
   apiKey: string;
   voiceId: string;
   modelId?: string;
+  testMode?: boolean;
 }
 
 export interface ElevenLabsVoice {
@@ -53,6 +54,16 @@ export async function generateSpeech(
   config: ElevenLabsConfig
 ): Promise<ElevenLabsResponse> {
   try {
+    // Test Mode - return mock response without API call
+    if (config.testMode) {
+      console.log('[ElevenLabs] Test Mode: Simulating TTS generation');
+      return {
+        success: true,
+        audioBase64: 'UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=',
+        characterCount: text.length,
+      };
+    }
+
     const response = await fetch(
       `${ELEVENLABS_API_URL}/text-to-speech/${config.voiceId}`,
       {
