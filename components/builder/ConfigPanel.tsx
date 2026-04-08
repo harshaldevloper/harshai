@@ -10,6 +10,7 @@ import SlackConfig from './nodes/config/SlackConfig';
 import NotionConfig from './nodes/config/NotionConfig';
 import TwitterConfig from './nodes/config/TwitterConfig';
 import DiscordConfig from './nodes/config/DiscordConfig';
+import PinterestConfig from './nodes/config/PinterestConfig';
 
 interface ConfigPanelProps {
   node: Node;
@@ -98,6 +99,7 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
                 <option value="notion">Notion</option>
                 <option value="twitter">Twitter/X</option>
                 <option value="discord">Discord</option>
+                <option value="pinterest">Pinterest</option>
                 <option value="midjourney">Midjourney</option>
                 <option value="jasper">Jasper</option>
               </select>
@@ -208,8 +210,21 @@ export default function ConfigPanel({ node, onClose }: ConfigPanelProps) {
               </div>
             )}
 
+            {/* Pinterest Configuration */}
+            {node.data.actionType === 'pinterest' && (
+              <div className="mb-6">
+                <PinterestConfig
+                  node={node}
+                  onUpdate={(nodeId, data) => {
+                    console.log('Pinterest config updated:', nodeId, data);
+                  }}
+                  onClose={onClose}
+                />
+              </div>
+            )}
+
             {/* Generic Prompt for Other Actions */}
-            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && node.data.actionType !== 'discord' && (
+            {node.data.actionType !== 'chatgpt' && node.data.actionType !== 'claude' && node.data.actionType !== 'elevenlabs' && node.data.actionType !== 'gmail' && node.data.actionType !== 'slack' && node.data.actionType !== 'notion' && node.data.actionType !== 'twitter' && node.data.actionType !== 'discord' && node.data.actionType !== 'pinterest' && (
               <div className="mb-6">
                 <label className="block text-indigo-300 text-sm mb-2">
                   Prompt / Instructions
