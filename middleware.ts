@@ -18,6 +18,8 @@ export default authMiddleware({
     '/product/:path*',
     '/api/webhooks/:path*',
   ],
+  // Redirect to custom domain after auth
+  afterAuthUrl: '/dashboard',
 });
 
 export const config = {
