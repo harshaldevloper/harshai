@@ -1,6 +1,8 @@
 'use client';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 import ReactFlow, {
   Node,
   Edge,
@@ -42,12 +44,33 @@ let id = 0;
 const getId = () => `node_${id++}`;
 
 function Flow() {
+  const { isLoaded, isSignedIn } = useUser();
+  const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [selectedEdge, setSelectedEdge] = useState<Edge | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push('/sign-in?redirect_url=/builder');
+    }
+  }, [isLoaded, isSignedIn, router]);
+
+  // Show loading while checking auth
+  if (!isLoaded || !isSignedIn) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-white text-2xl mb-4">Loading...</div>
+          <div className="text-indigo-300">Please sign in to access the builder</div>
+        </div>
+      </div>
+    );
+  }
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
   const [templateLoaded, setTemplateLoaded] = useState(false);
