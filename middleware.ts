@@ -9,19 +9,14 @@ export default authMiddleware({
     '/templates',
     '/use-cases',
     '/demo',
-    '/sign-in',
-    '/sign-up',
+    '/sign-in(.*)',
+    '/sign-up(.*)',
     '/privacy',
     '/terms',
     '/refund-policy',
     '/contact',
     '/product/:path*',
     '/api/webhooks/:path*',
-  ],
-  // Routes that require authentication
-  ignoredRoutes: [
-    '/api/webhooks/clerk',
-    '/api/webhooks/stripe',
   ],
 });
 
