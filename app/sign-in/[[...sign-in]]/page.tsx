@@ -58,40 +58,63 @@ export default function SignInPage() {
           <SignIn 
             appearance={{
               elements: {
-                // Main button
-                formButtonPrimary: 'bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 hover:scale-105',
-                // Card container - HIDE the default card wrapper
-                card: 'bg-transparent shadow-none p-0 box-border',
-                // Header
-                headerTitle: 'text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent',
-                headerSubtitle: 'text-gray-400 text-base',
-                header: 'mb-6',
+                // ROOT ELEMENTS - Remove all default containers
+                rootBox: 'w-full max-w-none',
+                container: 'bg-transparent shadow-none p-0',
+                card: 'bg-transparent shadow-none p-0 border-0',
+                
+                // Main button - Gradient with hover effects
+                formButtonPrimary: 'bg-gradient-to-r from-purple-600 to-cyan-500 hover:from-purple-700 hover:to-cyan-600 text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-500/30',
+                formButtonReset: 'text-gray-400 hover:text-white transition-colors',
+                
+                // Headers - Custom gradient text
+                headerTitle: 'text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2',
+                headerSubtitle: 'text-gray-400 text-base font-normal',
+                header: 'mb-6 text-center',
                 headerIcon: 'hidden',
-                // Social buttons
-                socialButtonsBlockButton: 'bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl py-3.5 transition-all duration-200 hover:scale-105 hover:border-purple-500/50',
-                socialButtonsBlockButtonText: 'text-white font-semibold',
-                socialButtons: 'gap-3',
+                
+                // Social buttons - Glassmorphism style
+                socialButtons: 'gap-3 mb-6',
+                socialButtonsBlockButton: 'bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl py-3.5 transition-all duration-200 hover:scale-105 hover:border-purple-500/50 backdrop-blur-sm',
+                socialButtonsBlockButtonText: 'text-white font-semibold text-sm',
                 socialButtonsBlockButtonArrow: 'text-white',
-                // Footer
-                footerActionLink: 'text-purple-400 hover:text-purple-300 font-semibold transition-colors',
-                footer: 'mt-6 pt-6 border-t border-white/10',
-                footerContent: 'text-gray-400',
-                // Form fields
-                formFieldLabel: 'text-gray-300 font-semibold text-sm mb-2',
-                formFieldInput: 'bg-white/5 border border-white/20 text-white rounded-xl px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all',
-                formFieldAction: 'text-purple-400 hover:text-purple-300',
+                socialButtonsBlockButtonIcon: 'text-white',
+                
+                // Form fields - Clean dark theme
+                form: 'space-y-4',
+                formField: 'space-y-1',
+                formFieldLabel: 'text-gray-300 font-semibold text-sm mb-1.5',
+                formFieldInput: 'bg-white/5 border border-white/20 text-white rounded-xl px-4 py-3 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/50 transition-all placeholder:text-gray-500',
+                formFieldAction: 'text-purple-400 hover:text-purple-300 text-sm font-medium',
+                
                 // Divider
-                dividerLine: 'bg-white/20',
-                dividerText: 'text-gray-400 font-medium',
+                dividerLine: 'bg-white/20 my-6',
+                dividerText: 'text-gray-400 font-medium text-sm bg-[#0a0a0f] px-3',
+                
                 // Messages
-                formFieldError: 'text-red-400 text-sm',
-                formFieldSuccess: 'text-green-400 text-sm',
-                identityPreviewEditButton: 'text-purple-400 hover:text-purple-300',
+                formFieldError: 'text-red-400 text-sm mt-1',
+                formFieldSuccess: 'text-green-400 text-sm mt-1',
+                identityPreviewEditButton: 'text-purple-400 hover:text-purple-300 font-medium',
+                
                 // Code inputs (OTP)
-                formCodeField: 'bg-white/10 border border-white/20 rounded-xl text-white',
-                // Hide default elements that conflict
-                rootBox: 'w-full',
-                container: 'bg-transparent shadow-none',
+                formCodeField: 'bg-white/10 border border-white/20 rounded-xl text-white text-center text-xl font-bold',
+                formCodeFieldList: 'gap-3',
+                
+                // Footer
+                footer: 'mt-8 pt-6 border-t border-white/10',
+                footerContent: 'text-gray-400 text-sm text-center',
+                footerActionLink: 'text-purple-400 hover:text-purple-300 font-bold transition-colors',
+                
+                // Links
+                link: 'text-purple-400 hover:text-purple-300 font-semibold transition-colors',
+                linkButton: 'text-purple-400 hover:text-purple-300 font-semibold transition-colors',
+                
+                // Profile/Avatar
+                avatarBox: 'w-16 h-16',
+                
+                // Modal/Overlay
+                modalBackdrop: 'backdrop-blur-sm',
+                modal: 'rounded-2xl',
               },
             }}
           />
