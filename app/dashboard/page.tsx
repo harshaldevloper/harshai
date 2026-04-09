@@ -1,20 +1,20 @@
 'use client';
 
-import { UserButton, useUser } from '@clerk/nextjs';
+import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function DashboardPage() {
-  const { user, isLoaded } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoaded && !user) {
+    if (status === 'unauthenticated') {
       router.push('/sign-in');
     }
-  }, [user, isLoaded, router]);
+  }, [status, router]);
 
-  if (!isLoaded) {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
@@ -22,12 +22,12 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!session) {
     return null;
   }
 
-  const email = user.emailAddresses?.[0]?.emailAddress || 'User';
-  const firstName = user.firstName || email.split('@')[0];
+  const email = session.user?.email || 'User';
+  const name = session.user?.name || email.split('@')[0];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
@@ -43,16 +43,12 @@ export default function DashboardPage() {
             <span className="text-indigo-200 text-sm hidden md:block">
               {email}
             </span>
-            <UserButton 
-              afterSignOutUrl="/"
-              appearance={{
-                elements: {
-                  avatarBox: 'w-10 h-10',
-                  userButtonPopoverCard: 'bg-indigo-900 border border-white/20',
-                  userButtonPopoverActionButton: 'text-white hover:bg-white/10',
-                },
-              }}
-            />
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
+              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-all border border-white/20"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </header>
@@ -61,7 +57,7 @@ export default function DashboardPage() {
       <main className="container mx-auto px-4 py-12">
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20">
           <h1 className="text-3xl font-bold text-white mb-4">
-            Welcome to HarshAI, {firstName}! 🎉
+            Welcome to HarshAI, {name}! 🎉
           </h1>
           
           <p className="text-indigo-200 mb-8">
