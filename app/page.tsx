@@ -53,7 +53,7 @@ export default function Home() {
               </Link>
             ))}
             <Link
-              href="/sign-up"
+              href="/sign-in"
               className="bg-gradient-to-r from-purple-600 to-cyan-500 px-5 py-2 rounded-full font-semibold text-white text-sm hover:scale-105 transition-transform duration-200"
             >
               Get Started
@@ -83,7 +83,7 @@ export default function Home() {
               </Link>
             ))}
             <Link
-              href="/sign-up"
+              href="/sign-in"
               onClick={() => setMobileMenuOpen(false)}
               className="bg-gradient-to-r from-purple-600 to-cyan-500 px-6 py-3 rounded-full font-semibold text-white text-center"
             >
@@ -116,13 +116,13 @@ export default function Home() {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/builder"
+              href="/sign-in"
               className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25 btn-shine animate-pulse-glow"
             >
               Try Builder →
             </Link>
             <Link
-              href="/sign-up"
+              href="/sign-in"
               className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg hover:bg-purple-500/10 hover:border-purple-500 transition-all duration-200 glass"
             >
               Get Started Free
