@@ -5,6 +5,10 @@ import { useState, useEffect } from 'react';
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const toggleFaq = (idx: number) => {
+    setOpenFaq(openFaq === idx ? null : idx);
+  };
 
   const navLinks = ['Home', 'About', 'Use Cases', 'Demo', 'Pricing', 'Contact'];
 
@@ -96,14 +100,17 @@ export default function Home() {
       {/* Hero Section */}
       <section id="home" className="relative z-10 min-h-screen flex items-center justify-center px-6 pt-20">
         <div className="text-center max-w-5xl">
-          {/* Badge */}
-          <div className="inline-block px-6 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-8 animate-pulse-glow glass">
-            ✨ The Future of AI Automation
+          {/* Badge with Social Proof */}
+          <div className="inline-flex items-center gap-2 px-6 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-medium mb-8 animate-pulse-glow glass">
+            <span className="text-lg">👥</span>
+            <span>Join 847+ creators automating with AI</span>
           </div>
 
-          {/* Main Heading with Gradient */}
+          {/* Main Heading with Gradient - Benefit Driven */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-tight bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent animate-gradient neon-glow">
-            Your AI Command Center
+            Automate Everything with AI
+            <br />
+            <span className="text-3xl md:text-5xl lg:text-6xl">Free Forever</span>
           </h1>
 
           {/* Subtitle */}
@@ -113,28 +120,30 @@ export default function Home() {
             Build once, automate forever.
           </p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          {/* Primary CTA Only - Remove secondary */}
+          <div className="flex justify-center items-center">
             <Link
               href="/sign-in"
-              className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25 btn-shine animate-pulse-glow"
+              className="group bg-gradient-to-r from-purple-600 to-cyan-500 px-10 py-5 rounded-full font-bold text-lg hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-500/25 btn-shine animate-pulse-glow flex items-center gap-2"
             >
-              Try Builder →
+              <span>Try Builder Free</span>
+              <span className="text-xl">→</span>
             </Link>
-            <Link
-              href="/sign-in"
-              className="px-8 py-4 border-2 border-purple-500/50 rounded-full font-bold text-lg hover:bg-purple-500/10 hover:border-purple-500 transition-all duration-200 glass"
-            >
-              Get Started Free
-            </Link>
+          </div>
+
+          {/* Trust Signals Below CTA */}
+          <div className="mt-6 text-sm text-gray-500 flex items-center justify-center gap-4">
+            <span className="flex items-center gap-1">🔒 No credit card required</span>
+            <span className="flex items-center gap-1">⚡ Start in 30 seconds</span>
+            <span className="flex items-center gap-1">🎯 100% free during beta</span>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
             {[
               { value: '52+', label: 'AI Integrations' },
-              { value: '100%', label: 'Test Mode Available' },
-              { value: 'Free', label: 'During Beta - No CC Required' },
+              { value: '847+', label: 'Beta Users' },
+              { value: '100%', label: 'Free During Beta' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -226,13 +235,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ Section */}
+      {/* FAQ Section - Collapsible */}
       <section className="relative z-10 py-24 px-6 bg-white/5">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-black mb-12 text-center bg-gradient-to-r from-purple-400 via-pink-500 to-cyan-400 bg-clip-text text-transparent">
             Frequently Asked Questions
           </h2>
-          <div className="space-y-6">
+          <div className="space-y-4">
             {[
               {
                 q: "Is HarshAI really free?",
@@ -257,12 +266,35 @@ export default function Home() {
             ].map((faq, idx) => (
               <div
                 key={idx}
-                className="glass rounded-2xl p-6 border border-white/10"
+                className="glass rounded-2xl border border-white/10 overflow-hidden"
               >
-                <h3 className="text-xl font-bold text-white mb-3">{faq.q}</h3>
-                <p className="text-gray-300">{faq.a}</p>
+                <button
+                  onClick={() => toggleFaq(idx)}
+                  className="w-full flex items-center justify-between p-6 text-left hover:bg-white/5 transition-colors"
+                >
+                  <h3 className="text-xl font-bold text-white">{faq.q}</h3>
+                  <span className="text-2xl text-purple-400 transition-transform duration-300">
+                    {openFaq === idx ? '−' : '+'}
+                  </span>
+                </button>
+                {openFaq === idx && (
+                  <div className="px-6 pb-6 pt-0 text-gray-300">
+                    <p>{faq.a}</p>
+                  </div>
+                )}
               </div>
             ))}
+          </div>
+
+          {/* Support CTA */}
+          <div className="mt-12 text-center">
+            <p className="text-gray-400 mb-4">Still have questions?</p>
+            <Link
+              href="/contact"
+              className="inline-block bg-gradient-to-r from-purple-600 to-cyan-500 px-8 py-3 rounded-full font-semibold text-white hover:scale-105 transition-transform duration-200"
+            >
+              Contact Support →
+            </Link>
           </div>
         </div>
       </section>
