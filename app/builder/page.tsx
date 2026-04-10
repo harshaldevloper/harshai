@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState, useEffect, useRef } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import ReactFlow, {
   Node,
@@ -44,7 +44,7 @@ let id = 0;
 const getId = () => `node_${id++}`;
 
 function Flow() {
-  const { isLoaded, isSignedIn } = useUser();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
@@ -55,13 +55,13 @@ function Flow() {
 
   // Redirect to sign-in if not authenticated
   useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push('/sign-in?redirect_url=/builder');
+    if (status === 'unauthenticated') {
+      router.push('/sign-in?callbackUrl=/builder');
     }
-  }, [isLoaded, isSignedIn, router]);
+  }, [status, router]);
 
   // Show loading while checking auth
-  if (!isLoaded || !isSignedIn) {
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 flex items-center justify-center">
         <div className="text-center">
