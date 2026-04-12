@@ -38,8 +38,8 @@ export default function PricingPage() {
       ],
       cta: 'Start 14-Day Free Trial',
       href: billingCycle === 'monthly' 
-        ? 'https://buy.paddle.com/checkout/pro_01knpm8mzc37nzxz2tvy83pt7a' 
-        : 'https://buy.paddle.com/checkout/pro_01knpmcpe5jw8r288bmrw71nk6',
+        ? 'https://buy.paddle.com/checkout/pro_01knpm8mzc37nzxz2tvy83pt7a/pri_01knpmbn7tbd3ebm1k2pyphm1c' 
+        : 'https://buy.paddle.com/checkout/pro_01knpmcpe5jw8r288bmrw71nk6/pri_01knpmjnpp3rr9bk9w9ek5yy8p',
       popular: true,
     },
     {
@@ -56,7 +56,7 @@ export default function PricingPage() {
         '✅ White Label Option',
       ],
       cta: 'Start Enterprise Trial',
-      href: 'https://buy.paddle.com/checkout/pro_01knpnxnm8ky1md7xhd71m2qkw',
+      href: 'https://buy.paddle.com/checkout/pro_01knpnxnm8ky1md7xhd71m2qkw/pri_01knpnynr1cmfrm5pmvbca3kgk',
       popular: false,
     },
   ];
