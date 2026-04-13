@@ -114,11 +114,19 @@ export default function Home() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-xl md:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl md:text-2xl text-gray-400 mb-6 max-w-3xl mx-auto leading-relaxed">
             Connect 50+ AI tools into automated workflows. No code required.
             <br className="hidden md:block" />
             Build once, automate forever.
           </p>
+
+          {/* SEO Content - Additional Value Proposition */}
+          <div className="text-base md:text-lg text-gray-500 max-w-4xl mx-auto leading-relaxed mb-10">
+            HarshAI is the all-in-one AI automation platform for creators, entrepreneurs, and businesses. 
+            Replace manual tasks with intelligent workflows that run 24/7. From content creation to customer 
+            support, automate your entire workflow with our visual drag-and-drop builder. Join hundreds of 
+            creators saving 10+ hours per week with AI-powered automation.
+          </div>
 
           {/* Primary CTA Only - Remove secondary */}
           <div className="flex justify-center items-center">
