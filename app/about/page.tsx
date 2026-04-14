@@ -63,7 +63,7 @@ export default function AboutPage() {
             {[
               { number: '50+', label: 'AI Integrations (Planned)' },
               { number: '5', label: 'Working Integrations' },
-              { number: 'Beta', label: 'Launch Status' },
+              { number: 'v1.0', label: 'Live' },
             ].map((stat, i) => (
               <div key={i} className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10">
                 <div className="text-4xl md:text-5xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">

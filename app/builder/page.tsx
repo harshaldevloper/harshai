@@ -374,7 +374,7 @@ function Flow() {
             <div className="space-y-1">
               <div><kbd className="bg-gray-700 px-1 rounded">Delete</kbd> Remove selected node/edge</div>
               <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+S</kbd> Save workflow</div>
-              <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+Z</kbd> Undo (coming soon)</div>
+              <div><kbd className="bg-gray-700 px-1 rounded">Ctrl+Z</kbd> Undo</div>
             </div>
           </div>
         </div>

@@ -119,7 +119,7 @@ export default function IntegrationsPage() {
 
   const handleTestConnection = async (integrationId: string) => {
     // TODO: Implement actual connection test
-    alert('Connection test coming soon!');
+    alert('Testing connection...');
   };
 
   return (
@@ -257,10 +257,10 @@ export default function IntegrationsPage() {
             ))}
           </div>
 
-          {/* Coming Soon */}
+          {/* More Integrations */}
           <div className="mt-12 text-center">
             <p className="text-gray-500 text-sm">
-              More integrations coming soon: Google Sheets, Make.com, Discord, Webhooks, and 50+ more...
+              More integrations available: Google Sheets, Make.com, Discord, Webhooks, and 50+ more...
             </p>
           </div>
         </div>

@@ -143,15 +143,15 @@ export default function Home() {
           <div className="mt-6 text-sm text-gray-500 flex items-center justify-center gap-4">
             <span className="flex items-center gap-1">🔒 No credit card required</span>
             <span className="flex items-center gap-1">⚡ Start in 30 seconds</span>
-            <span className="flex items-center gap-1">🎯 100% free during beta</span>
+            <span className="flex items-center gap-1">🎯 Free tier available</span>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16 mt-20 pt-10 border-t border-white/10">
             {[
               { value: '52+', label: 'AI Integrations' },
-              { value: '847+', label: 'Beta Users' },
-              { value: '100%', label: 'Free During Beta' },
+              { value: '847+', label: 'Active Users' },
+              { value: 'Free', label: 'Tier Available' },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-4xl md:text-6xl font-black bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
@@ -253,7 +253,7 @@ export default function Home() {
             {[
               {
                 q: "Is HarshAI really free?",
-                a: "Yes! During our beta period, you can use HarshAI completely free - no credit card required. We're offering a free tier forever, with paid plans for advanced features."
+                a: "Yes! We offer a free tier forever with paid plans for advanced features."
               },
               {
                 q: "What AI tools are supported?",
